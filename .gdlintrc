@@ -1,0 +1,5 @@
+# Configuración de gdlint (gdtoolkit 4.x). Ajustada al código existente del proyecto.
+# Las reglas desactivadas se pueden ir activando conforme el equipo limpie el código.
+disable: [class-definitions-order, max-public-methods, function-argument-name]
+max-file-lines: 1100
+max-line-length: 160

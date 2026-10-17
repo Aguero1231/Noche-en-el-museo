@@ -1,0 +1,22 @@
+# Normalizar fin de línea (LF) en todos los archivos de texto
+* text=auto eol=lf
+
+# Recursos de Godot en texto
+*.gd text eol=lf
+*.tscn text eol=lf
+*.tres text eol=lf
+*.cfg text eol=lf
+*.godot text eol=lf
+*.import text eol=lf
+*.uid text eol=lf
+*.md text eol=lf
+
+# Binarios (no intentar diff/merge de texto)
+*.png binary
+*.jpg binary
+*.ogg binary
+*.ogv binary
+*.wav binary
+*.mp3 binary
+*.glb binary
+*.zip binary

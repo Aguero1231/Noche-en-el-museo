@@ -1,0 +1,28 @@
+# Godot 4+
+.godot/
+/android/
+*.translation
+
+# Exportaciones y builds locales
+/build/
+/dist/
+*.exe
+*.pck
+*.apk
+*.aab
+
+# Datos de usuario del editor
+.mono/
+export_credentials.cfg
+
+# Sistema operativo / IDE
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+
+# Python (gdtoolkit local)
+__pycache__/
+*.pyc
+.venv/
