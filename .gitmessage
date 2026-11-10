@@ -1,0 +1,7 @@
+# <tipo>(<alcance>): <resumen en imperativo, máx. 72 caracteres>
+#
+# Tipos: feat | fix | docs | style | refactor | perf | test | build | ci | chore
+# Alcance sugerido: nivel1 | nivel2 | enemigos | ui | audio | menu | settings | tests | ci | docs
+#
+# Cuerpo (opcional): qué y por qué, no cómo.
+# Pie (opcional): Closes #12
