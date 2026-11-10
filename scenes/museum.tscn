@@ -1,0 +1,158 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/museum.gd" id="1_museum"]
+[ext_resource type="Script" path="res://scripts/game/game_state.gd" id="2_estado"]
+[ext_resource type="Script" path="res://scripts/game/interactables.gd" id="3_registro"]
+[ext_resource type="Script" path="res://scripts/environment/cctv_system.gd" id="4_cctv"]
+[ext_resource type="Script" path="res://scripts/environment/museum_builder.gd" id="5_sala"]
+[ext_resource type="Script" path="res://scripts/environment/room_lobby.gd" id="6_lobby"]
+[ext_resource type="Script" path="res://scripts/environment/room_control.gd" id="7_control"]
+[ext_resource type="Script" path="res://scripts/environment/room_curator.gd" id="8_curator"]
+[ext_resource type="Script" path="res://scripts/environment/room_restoration.gd" id="9_rest"]
+[ext_resource type="Script" path="res://scripts/environment/room_stairs.gd" id="10_stairs"]
+[ext_resource type="Script" path="res://scripts/environment/office_builder.gd" id="11_office"]
+[ext_resource type="Script" path="res://scripts/environment/room_galeria.gd" id="19_galeria"]
+[ext_resource type="Script" path="res://scripts/environment/room_armeria.gd" id="20_armeria"]
+[ext_resource type="Script" path="res://scripts/ui/game_hud.gd" id="12_hud"]
+[ext_resource type="Script" path="res://scripts/ui/note_viewer.gd" id="13_visor"]
+[ext_resource type="Script" path="res://scripts/ui/code_lock.gd" id="14_candado"]
+[ext_resource type="Script" path="res://scripts/ui/game_over.gd" id="18_gameover"]
+[ext_resource type="PackedScene" path="res://scenes/player/guardia.tscn" id="15_guardia"]
+[ext_resource type="PackedScene" path="res://scenes/zonas/zona_activacion.tscn" id="16_zona"]
+[ext_resource type="PackedScene" path="res://scenes/interactivos/objeto_interactivo.tscn" id="17_obj"]
+
+[node name="Museum" type="Node3D"]
+script = ExtResource("1_museum")
+
+[node name="Estado" type="Node" parent="."]
+script = ExtResource("2_estado")
+
+[node name="RegistroInteractivos" type="Node" parent="." groups=["registro_interactivos"]]
+script = ExtResource("3_registro")
+
+[node name="CCTV" type="Node3D" parent="."]
+script = ExtResource("4_cctv")
+
+[node name="Mundo" type="Node3D" parent="."]
+
+[node name="SalaEgipcia" type="Node3D" parent="Mundo"]
+script = ExtResource("5_sala")
+
+[node name="Vestibulo" type="Node3D" parent="Mundo"]
+script = ExtResource("6_lobby")
+
+[node name="SalaDeControl" type="Node3D" parent="Mundo"]
+script = ExtResource("7_control")
+
+[node name="OficinaDraTorres" type="Node3D" parent="Mundo"]
+script = ExtResource("8_curator")
+
+[node name="SalaDeRestauracion" type="Node3D" parent="Mundo"]
+script = ExtResource("9_rest")
+
+[node name="EscaleraDeServicio" type="Node3D" parent="Mundo"]
+script = ExtResource("10_stairs")
+
+[node name="GaleriaMedieval" type="Node3D" parent="Mundo"]
+position = Vector3(0, 9, 0)
+script = ExtResource("19_galeria")
+
+[node name="Armeria" type="Node3D" parent="Mundo"]
+position = Vector3(0, 9, 0)
+script = ExtResource("20_armeria")
+
+[node name="OficinaSeguridad" type="Node3D" parent="Mundo"]
+position = Vector3(11.95, 0, 23.2)
+rotation = Vector3(0, 1.5708, 0)
+script = ExtResource("11_office")
+
+[node name="Guardia" parent="." instance=ExtResource("15_guardia")]
+position = Vector3(11.45, 0.05, 24.15)
+rotation = Vector3(0, 1.5708, 0)
+
+[node name="Zonas" type="Node3D" parent="."]
+
+[node name="ZonaVestibulo" parent="Zonas" instance=ExtResource("16_zona")]
+position = Vector3(0, 1.5, 23.25)
+id_zona = "vestibulo"
+mensaje_radio = "ROBERTO (radio): «Ya saliste de la oficina, ¿verdad? Si las puertas no abren, es el Protocolo SEG-13. Se liberan solas a las seis. Tranquilo.»"
+tamano = Vector3(18, 3, 13.5)
+
+[node name="ZonaSalaEgipcia" parent="Zonas" instance=ExtResource("16_zona")]
+position = Vector3(0, 1.5, 0)
+id_zona = "sala"
+mensaje_radio = "ROBERTO (radio): «Esa es la Sala Egipcia... [estática] ...no mires fijamente a las estatuas, es broma, jaja... [estática fuerte]»"
+tamano = Vector3(31, 3, 31)
+
+[node name="ZonaOficinaDra" parent="Zonas" instance=ExtResource("16_zona")]
+position = Vector3(-13, 1.5, 19.9)
+id_zona = "oficina_dra"
+mensaje_radio = "ROBERTO (radio): «Revisa sus papeles con cuidado, Alex. La doctora anotó cosas importantes... y la tarjeta dorada debe estar por ahí.»"
+tamano = Vector3(7, 3, 6.25)
+
+[node name="ZonaRestauracion" parent="Zonas" instance=ExtResource("16_zona")]
+position = Vector3(-12.75, 1.5, 27.5)
+id_zona = "restauracion"
+mensaje_radio = "ROBERTO (radio): «Alex, ¿ese resplandor turquesa? Lo vi hoy en la cámara 5. Mejor no lo toques...»"
+tamano = Vector3(6.5, 3, 7)
+
+[node name="ZonaGaleria" parent="Zonas" instance=ExtResource("16_zona")]
+position = Vector3(0, 10.5, 17.1)
+id_zona = "galeria"
+mensaje_radio = "ROBERTO (radio): «Alex, las cámaras 7 y 8 volvieron... ¡hay armaduras en esa galería! Se oyen hasta por el walkie. Busca los reflectores del techo y no les des la espalda.»"
+tamano = Vector3(18, 3, 26)
+
+[node name="ZonaArmeria" parent="Zonas" instance=ExtResource("16_zona")]
+position = Vector3(0, 10.5, -5.25)
+id_zona = "armeria"
+mensaje_radio = "ROBERTO (radio): «Pasillos de dos metros y medio... Alex, una armadura ahí y no tienes por dónde correr. Fíjala con el reflector antes de pasar.»"
+tamano = Vector3(17.5, 3, 17.5)
+
+[node name="Interactivos" type="Node3D" parent="."]
+
+[node name="InterruptorVestibulo" parent="Interactivos" instance=ExtResource("17_obj")]
+position = Vector3(8.97, 1.35, 20.3)
+rotation = Vector3(0, -1.5708, 0)
+nombre_objeto = "Interruptor del vestíbulo"
+id_luces = "vestibulo"
+texto_aviso = "Luces del vestíbulo"
+
+[node name="InterruptorControl" parent="Interactivos" instance=ExtResource("17_obj")]
+position = Vector3(10.6, 1.35, 26.43)
+nombre_objeto = "Interruptor de la sala de control"
+id_luces = "control"
+texto_aviso = "Luces de la sala de control"
+
+[node name="InterruptorOficinaDra" parent="Interactivos" instance=ExtResource("17_obj")]
+position = Vector3(-9.53, 1.35, 18.2)
+rotation = Vector3(0, -1.5708, 0)
+nombre_objeto = "Interruptor de la oficina de la Dra. Torres"
+id_luces = "oficina_dra"
+texto_aviso = "Luces de la oficina"
+
+[node name="InterruptorRestauracion" parent="Interactivos" instance=ExtResource("17_obj")]
+position = Vector3(-9.53, 1.35, 25.4)
+rotation = Vector3(0, -1.5708, 0)
+nombre_objeto = "Interruptor de la sala de restauración"
+id_luces = "restauracion"
+texto_aviso = "Luces de restauración"
+
+[node name="InterruptorGaleria" parent="Interactivos" instance=ExtResource("17_obj")]
+position = Vector3(8.97, 10.35, 28.9)
+rotation = Vector3(0, -1.5708, 0)
+nombre_objeto = "Interruptor de la galería"
+danado = true
+texto_aviso = "Interruptor (dañado)"
+empieza_encendido = false
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("12_hud")
+
+[node name="VisorDeNotas" type="CanvasLayer" parent="."]
+script = ExtResource("13_visor")
+
+[node name="Candado" type="CanvasLayer" parent="."]
+script = ExtResource("14_candado")
+
+[node name="GameOver" type="CanvasLayer" parent="."]
+script = ExtResource("18_gameover")

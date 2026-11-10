@@ -1,0 +1,139 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/menu/main_menu.gd" id="1_menu"]
+[ext_resource type="Texture2D" path="res://assets/menu/main_menu_background.png" id="2_bg"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_menu")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_bg")
+expand_mode = 1
+stretch_mode = 6
+mouse_filter = 2
+
+[node name="ButtonLayer" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="PlayButton" type="Button" parent="ButtonLayer"]
+layout_mode = 1
+anchors_preset = 0
+offset_left = 80.0
+offset_top = 348.0
+offset_right = 430.0
+offset_bottom = 407.0
+focus_neighbor_bottom = NodePath("../OptionsButton")
+theme_override_colors/font_color = Color(1, 1, 1, 0.02)
+theme_override_colors/font_hover_color = Color(1, 0.75, 0.25, 0.14)
+theme_override_colors/font_focus_color = Color(1, 0.75, 0.25, 0.18)
+theme_override_font_sizes/font_size = 1
+flat = true
+text = "JUGAR"
+
+[node name="OptionsButton" type="Button" parent="ButtonLayer"]
+layout_mode = 0
+offset_left = 80.0
+offset_top = 416.0
+offset_right = 430.0
+offset_bottom = 467.0
+theme_override_font_sizes/font_size = 1
+flat = true
+text = "OPCIONES"
+
+[node name="ControlsButton" type="Button" parent="ButtonLayer"]
+layout_mode = 0
+offset_left = 80.0
+offset_top = 478.0
+offset_right = 430.0
+offset_bottom = 529.0
+theme_override_font_sizes/font_size = 1
+flat = true
+text = "CONTROLES"
+
+[node name="CreditsButton" type="Button" parent="ButtonLayer"]
+layout_mode = 0
+offset_left = 80.0
+offset_top = 538.0
+offset_right = 430.0
+offset_bottom = 589.0
+theme_override_font_sizes/font_size = 1
+flat = true
+text = "CRÉDITOS"
+
+[node name="ExitButton" type="Button" parent="ButtonLayer"]
+layout_mode = 0
+offset_left = 80.0
+offset_top = 600.0
+offset_right = 430.0
+offset_bottom = 651.0
+theme_override_font_sizes/font_size = 1
+flat = true
+text = "SALIR"
+
+[node name="Modal" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -310.0
+offset_top = -205.0
+offset_right = 310.0
+offset_bottom = 205.0
+
+[node name="Margin" type="MarginContainer" parent="Modal"]
+layout_mode = 2
+theme_override_constants/margin_left = 35
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 35
+theme_override_constants/margin_bottom = 30
+
+[node name="VBox" type="VBoxContainer" parent="Modal/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Title" type="Label" parent="Modal/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.69, 0.27, 1)
+theme_override_font_sizes/font_size = 30
+text = "OPCIONES"
+horizontal_alignment = 1
+
+[node name="Text" type="Label" parent="Modal/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Contenido"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Close" type="Button" parent="Modal/Margin/VBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "VOLVER"
+
+[connection signal="pressed" from="ButtonLayer/PlayButton" to="." method="_on_play_pressed"]
+[connection signal="pressed" from="ButtonLayer/OptionsButton" to="." method="_on_options_pressed"]
+[connection signal="pressed" from="ButtonLayer/ControlsButton" to="." method="_on_controls_pressed"]
+[connection signal="pressed" from="ButtonLayer/CreditsButton" to="." method="_on_credits_pressed"]
+[connection signal="pressed" from="ButtonLayer/ExitButton" to="." method="_on_exit_pressed"]
+[connection signal="pressed" from="Modal/Margin/VBox/Close" to="." method="_on_close_pressed"]

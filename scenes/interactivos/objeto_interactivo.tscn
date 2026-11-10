@@ -1,0 +1,33 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/game/objeto_interactivo.gd" id="1_obj"]
+
+[sub_resource type="SphereShape3D" id="Area"]
+radius = 1.4
+
+[sub_resource type="BoxMesh" id="MallaPanel"]
+size = Vector3(0.22, 0.32, 0.05)
+
+[sub_resource type="StandardMaterial3D" id="MatPanel"]
+albedo_color = Color(0.12, 0.12, 0.13, 1)
+metallic = 0.5
+roughness = 0.4
+
+[sub_resource type="SphereMesh" id="MallaLed"]
+radius = 0.03
+height = 0.06
+
+[node name="ObjetoInteractivo" type="Area3D" groups=["interactivos"]]
+script = ExtResource("1_obj")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, -0.2, 1.1)
+shape = SubResource("Area")
+
+[node name="Panel" type="MeshInstance3D" parent="."]
+mesh = SubResource("MallaPanel")
+surface_material_override/0 = SubResource("MatPanel")
+
+[node name="Led" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.07, 0.03)
+mesh = SubResource("MallaLed")

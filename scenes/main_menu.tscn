@@ -1,0 +1,278 @@
+[gd_scene format=3 uid="uid://1vc1qfbpc6cy"]
+
+[ext_resource type="VideoStream" uid="uid://b8usqmqwwkrpe" path="res://assets/menu/menu_background.ogv" id="1_video"]
+[ext_resource type="Script" uid="uid://co6llvlrdjqmt" path="res://scripts/main_menu.gd" id="2_script"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_flat"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_overlay"]
+bg_color = Color(0.04, 0.03, 0.02, 0.88)
+
+[node name="MainMenu" type="Control" unique_id=1594255775]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_script")
+
+[node name="Background" type="VideoStreamPlayer" parent="." unique_id=1800700005]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+stream = ExtResource("1_video")
+autoplay = true
+expand = true
+loop = true
+
+[node name="MenuOpciones" type="VBoxContainer" parent="." unique_id=485546401]
+layout_mode = 0
+offset_left = 108.0
+offset_top = 420.0
+offset_right = 500.0
+offset_bottom = 620.0
+theme_override_constants/separation = 16
+
+[node name="JugarButton" type="Button" parent="MenuOpciones" unique_id=726796970]
+custom_minimum_size = Vector2(300, 36)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_colors/font_color = Color(0.92, 0.92, 0.88, 1)
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxEmpty_flat")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_flat")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_flat")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_flat")
+text = "JUGAR"
+alignment = 0
+
+[node name="OpcionesButton" type="Button" parent="MenuOpciones" unique_id=976001432]
+custom_minimum_size = Vector2(300, 30)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_colors/font_color = Color(0.92, 0.92, 0.88, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxEmpty_flat")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_flat")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_flat")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_flat")
+text = "OPCIONES"
+alignment = 0
+
+[node name="ControlesButton" type="Button" parent="MenuOpciones" unique_id=369376423]
+custom_minimum_size = Vector2(300, 30)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_colors/font_color = Color(0.92, 0.92, 0.88, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxEmpty_flat")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_flat")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_flat")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_flat")
+text = "CONTROLES"
+alignment = 0
+
+[node name="CreditosButton" type="Button" parent="MenuOpciones" unique_id=791950121]
+custom_minimum_size = Vector2(300, 30)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_colors/font_color = Color(0.92, 0.92, 0.88, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxEmpty_flat")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_flat")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_flat")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_flat")
+text = "CRÉDITOS"
+alignment = 0
+
+[node name="SalirButton" type="Button" parent="MenuOpciones" unique_id=1741926567]
+custom_minimum_size = Vector2(300, 30)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_colors/font_color = Color(0.92, 0.92, 0.88, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxEmpty_flat")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_flat")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_flat")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_flat")
+text = "SALIR"
+alignment = 0
+
+[node name="Tagline" type="Label" parent="." unique_id=1337868826]
+layout_mode = 0
+offset_left = 108.0
+offset_top = 660.0
+offset_right = 700.0
+offset_bottom = 690.0
+theme_override_colors/font_color = Color(0.6, 0.58, 0.53, 1)
+theme_override_font_sizes/font_size = 14
+text = "Algunas reliquias no deberían despertar."
+
+[node name="OverlayOpciones" type="Panel" parent="." unique_id=1410988824]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_overlay")
+
+[node name="Contenido" type="VBoxContainer" parent="OverlayOpciones" unique_id=106390022]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -140.0
+offset_right = 220.0
+offset_bottom = 140.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 18
+
+[node name="Titulo" type="Label" parent="OverlayOpciones/Contenido" unique_id=530202155]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.85, 0.66, 1)
+theme_override_font_sizes/font_size = 26
+text = "OPCIONES"
+horizontal_alignment = 1
+
+[node name="FilaVolumen" type="HBoxContainer" parent="OverlayOpciones/Contenido" unique_id=680446918]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="LabelVolumen" type="Label" parent="OverlayOpciones/Contenido/FilaVolumen" unique_id=702824265]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.83, 0.78, 1)
+text = "Volumen general"
+
+[node name="VolumenSlider" type="HSlider" parent="OverlayOpciones/Contenido/FilaVolumen" unique_id=180396216]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.05
+value = 1.0
+
+[node name="FilaPantalla" type="HBoxContainer" parent="OverlayOpciones/Contenido" unique_id=1648341125]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="LabelPantalla" type="Label" parent="OverlayOpciones/Contenido/FilaPantalla" unique_id=1799347957]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.83, 0.78, 1)
+text = "Pantalla completa"
+
+[node name="FullscreenCheck" type="CheckBox" parent="OverlayOpciones/Contenido/FilaPantalla" unique_id=516743087]
+layout_mode = 2
+
+[node name="VolverButton" type="Button" parent="OverlayOpciones/Contenido" unique_id=317001819]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.85, 0.66, 1)
+text = "Volver"
+
+[node name="OverlayControles" type="Panel" parent="." unique_id=1180250398]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_overlay")
+
+[node name="Contenido" type="VBoxContainer" parent="OverlayControles" unique_id=1307183581]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -120.0
+offset_right = 220.0
+offset_bottom = 120.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 18
+
+[node name="Titulo" type="Label" parent="OverlayControles/Contenido" unique_id=398325746]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.85, 0.66, 1)
+theme_override_font_sizes/font_size = 26
+text = "CONTROLES"
+horizontal_alignment = 1
+
+[node name="Cuerpo" type="Label" parent="OverlayControles/Contenido" unique_id=1061481490]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.83, 0.78, 1)
+theme_override_constants/line_spacing = 8
+text = "WASD — Moverse        Shift — Correr
+Mouse — Mirar / cámara
+E o clic — Usar, recoger, leer        R — Señuelo (walkie)
+C — Cambiar entre primera y tercera persona
+F o clic derecho — Linterna        V — Subir / bajar espejo
+Esc — Pausa        F11 — Pantalla completa
+Las estatuas solo se mueven cuando NO las miras."
+horizontal_alignment = 1
+
+[node name="VolverButton" type="Button" parent="OverlayControles/Contenido" unique_id=918119030]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.85, 0.66, 1)
+text = "Volver"
+
+[node name="OverlayCreditos" type="Panel" parent="." unique_id=886853700]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_overlay")
+
+[node name="Contenido" type="VBoxContainer" parent="OverlayCreditos" unique_id=436798564]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -120.0
+offset_right = 220.0
+offset_bottom = 120.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 18
+
+[node name="Titulo" type="Label" parent="OverlayCreditos/Contenido" unique_id=1498541688]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.85, 0.66, 1)
+theme_override_font_sizes/font_size = 26
+text = "CRÉDITOS"
+horizontal_alignment = 1
+
+[node name="Cuerpo" type="Label" parent="OverlayCreditos/Contenido" unique_id=1387244958]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.83, 0.78, 1)
+theme_override_constants/line_spacing = 8
+text = "Diseño y programación: (tu nombre)
+Arte de referencia generado con IA
+Hecho con Godot Engine"
+horizontal_alignment = 1
+
+[node name="VolverButton" type="Button" parent="OverlayCreditos/Contenido" unique_id=1939513835]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.85, 0.66, 1)
+text = "Volver"

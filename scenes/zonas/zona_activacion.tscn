@@ -1,0 +1,12 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/game/zona_activacion.gd" id="1_zona"]
+
+[sub_resource type="BoxShape3D" id="Caja"]
+size = Vector3(4, 3, 4)
+
+[node name="ZonaActivacion" type="Area3D" groups=["zonas"]]
+script = ExtResource("1_zona")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("Caja")

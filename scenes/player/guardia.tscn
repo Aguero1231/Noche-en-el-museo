@@ -1,0 +1,25 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/player/guardia.gd" id="1_guardia"]
+
+[sub_resource type="CapsuleShape3D" id="Capsula"]
+radius = 0.35
+height = 1.8
+
+[node name="Guardia" type="CharacterBody3D" groups=["jugador"]]
+script = ExtResource("1_guardia")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.9, 0)
+shape = SubResource("Capsula")
+
+[node name="Modelo" type="Node3D" parent="."]
+
+[node name="Linterna" type="SpotLight3D" parent="."]
+visible = false
+position = Vector3(0.22, 1.3, -0.3)
+light_color = Color(1, 0.95, 0.85, 1)
+light_energy = 8.0
+shadow_enabled = true
+spot_range = 14.0
+spot_angle = 30.0
