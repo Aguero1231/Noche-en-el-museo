@@ -100,6 +100,7 @@ func _start_game() -> void:
 
 
 func _start_trailer() -> void:
+	Engine.set_meta("trailer_from_menu", true)
 	get_tree().change_scene_to_file("res://scenes/trailer.tscn")
 
 

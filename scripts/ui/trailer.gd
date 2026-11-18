@@ -12,17 +12,28 @@ extends Node3D
 
 var _mirar_a := Vector3.ZERO
 var _terminando := false
+var _poster_final_visible := false
+var _mostrar_saltar := true
 var _inicio_ms := 0
 var _puertas_trailer: Array[Node3D] = []
+var _placa_overlay: ColorRect
+var _placa_imagen: TextureRect
+var _placa_texto: Label
 
 
 func _ready() -> void:
-	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
 	# Fija la cámara antes de esperar frames para que no se vea el encuadre por defecto del museo.
 	camara.global_position = Vector3(12.2, 2.2, 23.0)
 	_mirar_a = Vector3(10.8, 2.1, 25.0)
 	camara.current = true
-	$CinematicUI/ExitButton.pressed.connect(_volver_menu)
+	var iniciado_desde_menu := Engine.has_meta("trailer_from_menu")
+	if iniciado_desde_menu:
+		Engine.remove_meta("trailer_from_menu")
+	_mostrar_saltar = not iniciado_desde_menu
+	var boton_saltar := $CinematicUI/ExitButton as Button
+	boton_saltar.pressed.connect(_omitir_trailer)
+	boton_saltar.visible = _mostrar_saltar
 	for etiqueta in [titulo, subtitulo]:
 		etiqueta.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.98))
 		etiqueta.add_theme_constant_override("shadow_offset_x", 2)
@@ -67,7 +78,10 @@ func _ready() -> void:
 	if _terminando:
 		return
 	_inicio_ms = Time.get_ticks_msec()
-	musica.play()
+	# El montaje usa los últimos 2:00 del instrumental, empezando en 00:20.
+	musica.play(20.0)
+	if _mostrar_saltar:
+		_ocultar_aviso_saltar()
 	_reproducir_secuencia()
 
 
@@ -77,52 +91,71 @@ func _process(_delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_cancel") or event.is_action_pressed("ui_accept"):
-		_volver_menu()
-	elif event is InputEventKey and event.pressed and event.keycode == KEY_SPACE:
-		_volver_menu()
+	if _terminando:
+		return
+	var entrada := false
+	if event is InputEventKey:
+		var tecla := event as InputEventKey
+		entrada = tecla.pressed and not tecla.echo
+	elif event is InputEventMouseButton:
+		entrada = (event as InputEventMouseButton).pressed
+	if entrada:
+		_omitir_trailer()
+
+
+func _ocultar_aviso_saltar() -> void:
+	await get_tree().create_timer(4.0).timeout
+	if _terminando or _poster_final_visible:
+		return
+	var aviso := $CinematicUI/ExitButton as Button
+	var t := create_tween()
+	t.tween_property(aviso, "modulate:a", 0.0, 0.45)
+	await t.finished
+	aviso.visible = false
 
 
 func _reproducir_secuencia() -> void:
 	if _terminando:
 		return
-	await _plano(Vector3(12.2, 2.2, 23.0), Vector3(10.8, 2.1, 25.0), "TURNO DE NOCHE", "Las cámaras vigilan el museo. ¿Qué ocurre cuando nadie mira?", 6.0)
+	await _plano(Vector3(12.2, 2.2, 23.0), Vector3(10.8, 2.1, 25.0), "TURNO DE NOCHE", "Las cámaras vigilan el museo. ¿Qué ocurre cuando nadie mira?", 5.0)
 
 	# Piso principal: planos amplios y lentos desde los puntos de cámara despejados.
-	await _plano(Vector3(0.0, 2.35, 10.5), Vector3(0.0, 2.4, -14.2), "UNA NOCHE TRANQUILA", "El museo cierra. El turno de Alex apenas comienza.", 9.0)
-	await _plano(Vector3(-3.0, 5.4, 13.2), Vector3(0.0, 2.0, -5.0), "UNA REGLA SENCILLA", "No apartes la mirada de las reliquias.", 9.0)
-	await _plano(Vector3(5.5, 6.1, 8.0), Vector3(0.0, 1.8, -7.0), "PERO EL MUSEO ES ENORME", "Y la oscuridad siempre encuentra un punto ciego.", 9.0)
-	await _plano(Vector3(-8.5, 5.8, -10.0), Vector3(2.0, 1.2, 2.0), "BUSCA LO QUE SE PERDIÓ", "Cuatro fragmentos mantienen unido un sello antiguo.", 9.0)
-	await _plano(Vector3(3.8, 4.5, -9.0), Vector3(0.0, 2.1, -14.2), "ALGO DESPERTÓ", "La estatua de Anubis guarda la salida.", 9.0)
-	await _cartela("ESCUCHA LA RADIO", "Una voz amiga puede ser lo único que te guíe.", 7.0)
-	await _plano(Vector3(7.2, 4.1, 12.0), Vector3(-2.0, 1.2, 5.0), "USA LO QUE TENGAS", "Linterna, espejo y walkie-talkie: cada segundo cuenta.", 9.0)
+	await _plano(Vector3(0.0, 2.35, 10.5), Vector3(0.0, 2.4, -14.2), "UNA NOCHE TRANQUILA", "El museo cierra. El turno de Alex apenas comienza.", 6.0)
+	await _plano(Vector3(-3.0, 5.4, 13.2), Vector3(0.0, 2.0, -5.0), "UNA REGLA SENCILLA", "No apartes la mirada de las reliquias.", 6.0)
+	await _plano(Vector3(5.5, 6.1, 8.0), Vector3(0.0, 1.8, -7.0), "PERO EL MUSEO ES ENORME", "Y la oscuridad siempre encuentra un punto ciego.", 6.0)
+	await _plano(Vector3(-8.5, 5.8, -10.0), Vector3(2.0, 1.2, 2.0), "BUSCA LO QUE SE PERDIÓ", "Cuatro fragmentos mantienen unido un sello antiguo.", 6.0)
+	await _plano(Vector3(3.8, 4.5, -9.0), Vector3(0.0, 2.1, -14.2), "ALGO DESPERTÓ", "La estatua de Anubis guarda la salida.", 6.0)
+	await _cartela("ESCUCHA LA RADIO", "Una voz amiga puede ser lo único que te guíe.", 4.0)
+	await _plano(Vector3(7.2, 4.1, 12.0), Vector3(-2.0, 1.2, 5.0), "USA LO QUE TENGAS", "Linterna, espejo y walkie-talkie: cada segundo cuenta.", 6.0)
 
 	# Segundo piso solamente: galería y armería terminadas, sin mostrar niveles en obra.
-	await _plano(Vector3(8.4, 13.6, 29.4), Vector3(0.0, 10.0, 12.0), "SUBE A LA GALERÍA", "El segundo piso conserva sus propios secretos.", 9.0)
-	await _plano(Vector3(0.0, 12.0, -2.5), Vector3(0.0, 10.8, -11.0), "ACERO EN LA OSCURIDAD", "No todas las armaduras siguen siendo exhibiciones.", 9.0)
-	await _plano(Vector3(-8.0, 14.2, 17.0), Vector3(2.5, 10.4, 25.0), "CADA PASILLO ES UNA DECISIÓN", "Avanza con cuidado. Algo puede estar esperándote.", 9.0)
-	await _plano(Vector3(-6.0, 12.4, 16.0), Vector3(-2.5, 10.6, 22.0), "NO HAY UN CAMINO SEGURO", "La luz te protege… solo por un momento.", 9.0)
+	await _plano(Vector3(8.4, 13.6, 29.4), Vector3(0.0, 10.0, 12.0), "SUBE A LA GALERÍA", "El segundo piso conserva sus propios secretos.", 6.0)
+	await _plano(Vector3(0.0, 12.0, -2.5), Vector3(0.0, 10.8, -11.0), "ACERO EN LA OSCURIDAD", "No todas las armaduras siguen siendo exhibiciones.", 6.0)
+	await _plano(Vector3(-8.0, 14.2, 17.0), Vector3(2.5, 10.4, 25.0), "CADA PASILLO ES UNA DECISIÓN", "Avanza con cuidado. Algo puede estar esperándote.", 6.0)
+	await _plano(Vector3(-6.0, 12.4, 16.0), Vector3(-2.5, 10.6, 22.0), "NO HAY UN CAMINO SEGURO", "La luz te protege… solo por un momento.", 6.0)
 
 	# Los pisos 3 y 4 se anuncian con pantalla oscura; no se muestran sus espacios aún incompletos.
 	# Dos planos distintos en el vestíbulo sustituyen cartelas repetidas y preparan la salida.
-	await _plano(Vector3(-4.2, 2.2, 20.5), Vector3(0.0, 2.0, 29.7), "EL ÚLTIMO PASILLO", "La salida está más cerca de lo que parece.", 7.0)
-	await _plano(Vector3(4.3, 2.0, 22.2), Vector3(0.0, 2.0, 30.0), "NO HAY VUELTA ATRÁS", "Algo espera al otro lado.", 7.0)
-	await _cartela("CUATRO NIVELES. CUATRO FRAGMENTOS.", "Reúne el sello antes de que el museo te encuentre.", 7.0)
-	await _toma_puerta_salida(true, 7.5)
-	await _toma_puerta_salida(false, 7.5)
+	await _plano(Vector3(-4.2, 2.2, 20.5), Vector3(0.0, 2.0, 29.7), "EL ÚLTIMO PASILLO", "La salida está más cerca de lo que parece.", 5.0)
+	await _plano(Vector3(4.3, 2.0, 22.2), Vector3(0.0, 2.0, 30.0), "NO HAY VUELTA ATRÁS", "Algo espera al otro lado.", 5.0)
+	await _cartela("CUATRO NIVELES. CUATRO FRAGMENTOS.", "Reúne el sello antes de que el museo te encuentre.", 5.0)
+	await _toma_puerta_salida(true, 6.0)
+	await _toma_puerta_salida(false, 6.0)
+	await _placa_final("res://assets/trailer/logo_estudio.png", "PRESENTADO POR:", 8.0, false)
+	await _placa_final("res://assets/trailer/lanzamiento_pc.jpeg", "", 13.3, true)
 
 	# Mantén el montaje acompasado al instrumental, incluso si alguna transición termina antes.
 	var transcurrido := float(Time.get_ticks_msec() - _inicio_ms) / 1000.0
-	var restante := 139.2 - transcurrido
+	var restante := 119.3 - transcurrido
 	if restante > 0.0:
 		await get_tree().create_timer(restante).timeout
 	if _terminando:
 		return
-	var salida := create_tween().set_parallel(true)
-	salida.tween_property(fundido, "modulate:a", 1.0, 0.7)
+	var salida := create_tween()
 	salida.tween_property(musica, "volume_db", -36.0, 0.7)
 	await salida.finished
-	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+	# El póster permanece en pantalla; cualquier tecla lo lleva al menú principal.
+	_poster_final_visible = true
 
 
 func _cartela(linea: String, detalle: String, duracion: float) -> void:
@@ -132,6 +165,95 @@ func _cartela(linea: String, detalle: String, duracion: float) -> void:
 	subtitulo.text = detalle
 	_mirar_a = camara.global_position + Vector3.FORWARD
 	await _mostrar_texto(duracion)
+
+
+func _placa_final(ruta_imagen: String, encabezado: String, duracion: float, es_lanzamiento: bool) -> void:
+	if _terminando:
+		return
+	titulo.modulate.a = 0.0
+	subtitulo.modulate.a = 0.0
+	if not es_lanzamiento:
+		# La placa del estudio va sobre la sala principal, no sobre un fundido negro.
+		_mirar_a = Vector3(0.0, 2.4, -14.2)
+		var movimiento_a_sala := create_tween()
+		movimiento_a_sala.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+		movimiento_a_sala.tween_property(camara, "global_position", Vector3(0.0, 2.35, 10.5), 1.5)
+	if _placa_overlay == null:
+		_placa_overlay = ColorRect.new()
+		_placa_overlay.name = "EndCardOverlay"
+		_placa_overlay.color = Color.BLACK
+		_placa_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		_placa_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_placa_overlay.modulate.a = 0.0
+		$CinematicUI.add_child(_placa_overlay)
+		_placa_imagen = TextureRect.new()
+		_placa_imagen.name = "EndCardImage"
+		_placa_imagen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		_placa_imagen.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_placa_overlay.add_child(_placa_imagen)
+		_placa_texto = Label.new()
+		_placa_texto.name = "EndCardHeading"
+		_placa_texto.set_anchors_preset(Control.PRESET_CENTER_TOP)
+		_placa_texto.anchor_left = 0.5
+		_placa_texto.anchor_right = 0.5
+		_placa_texto.offset_left = -500.0
+		_placa_texto.offset_top = 36.0
+		_placa_texto.offset_right = 500.0
+		_placa_texto.offset_bottom = 100.0
+		_placa_texto.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_placa_texto.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		_placa_texto.add_theme_color_override("font_color", Color(0.91, 0.75, 0.4))
+		_placa_texto.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 1))
+		_placa_texto.add_theme_constant_override("shadow_offset_x", 2)
+		_placa_texto.add_theme_constant_override("shadow_offset_y", 3)
+		_placa_texto.add_theme_font_size_override("font_size", 30)
+		_placa_overlay.add_child(_placa_texto)
+	_placa_imagen.texture = load(ruta_imagen) as Texture2D
+	# Mantiene el arte entero dentro del encuadre, sin cortar la fecha ni el título.
+	_placa_imagen.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_placa_imagen.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_placa_imagen.modulate.a = 1.0
+	if es_lanzamiento:
+		_placa_imagen.material = null
+	else:
+		# El PNG adjunto trae gris horneado en el fondo; la clave lo vuelve transparente
+		# sin borrar los tonos oscuros del emblema ni las letras claras.
+		var clave_fondo := Shader.new()
+		clave_fondo.code = """
+		shader_type canvas_item;
+		void fragment() {
+			vec4 modulacion = COLOR;
+			vec4 pixel = texture(TEXTURE, UV);
+			float luminancia = dot(pixel.rgb, vec3(0.299, 0.587, 0.114));
+			float maximo = max(pixel.r, max(pixel.g, pixel.b));
+			float minimo = min(pixel.r, min(pixel.g, pixel.b));
+			float neutral = 1.0 - smoothstep(0.035, 0.12, maximo - minimo);
+			float gris_medio = smoothstep(0.24, 0.34, luminancia) * (1.0 - smoothstep(0.82, 0.91, luminancia));
+			pixel.a *= 1.0 - neutral * gris_medio;
+			COLOR = pixel * modulacion;
+		}
+		"""
+		var material_clave := ShaderMaterial.new()
+		material_clave.shader = clave_fondo
+		_placa_imagen.material = material_clave
+	_placa_texto.text = encabezado
+	_placa_texto.visible = not es_lanzamiento
+	# La sala principal queda visible detrás tanto del logo como del póster completo.
+	_placa_overlay.color = Color(0, 0, 0, 0)
+	_placa_overlay.modulate.a = 0.0
+	var entrada := create_tween()
+	entrada.tween_property(_placa_overlay, "modulate:a", 1.0, 0.8)
+	await entrada.finished
+	if _terminando:
+		return
+	if es_lanzamiento:
+		# Mantiene el arte de lanzamiento visible hasta que el jugador continúe.
+		await get_tree().create_timer(maxf(0.0, duracion - 0.8)).timeout
+		return
+	await get_tree().create_timer(maxf(0.0, duracion - 1.6)).timeout
+	var salida := create_tween()
+	salida.tween_property(_placa_overlay, "modulate:a", 0.0, 0.8)
+	await salida.finished
 
 
 func _plano(posicion: Vector3, objetivo: Vector3, linea: String, detalle: String, duracion: float) -> void:
@@ -335,11 +457,15 @@ func _crear_pieza_puerta(posicion: Vector3, tamano: Vector3, material: Material)
 	museo.add_child(pieza)
 
 
-func _volver_menu() -> void:
+func _omitir_trailer() -> void:
 	if _terminando:
 		return
 	_terminando = true
+	_poster_final_visible = false
 	musica.stop()
+	if is_instance_valid(_placa_overlay):
+		_placa_overlay.visible = false
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	var salida := create_tween()
 	salida.tween_property(fundido, "modulate:a", 1.0, 0.6)
 	await salida.finished
