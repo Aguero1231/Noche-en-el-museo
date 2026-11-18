@@ -15,10 +15,16 @@ oficina de la Dra. Torres (candado 1310), Sala de Restauración (fragmento 1) y 
 Recompensa: tarjeta azul, que abre la escalera de servicio.
 
 **Nivel 2 "Pasillos de Acero" (piso 2):** escalera en U (9 m) -> Galería Medieval (tumba de Sir Edric, fragmento 2)
-y Armería (laberinto de pasillos de 2.5 m, fragmento 3; reja con código 1348 grabado en el escudo del fundador).
-Armaduras ruidosas y rápidas, reflectores de exhibición, interruptor dañado.
-Recompensa (con 3 fragmentos en el pedestal): tarjeta roja y batería de linterna ampliada.
-Piso 3 (Paleontología y Bóveda): todavía no construido (la puerta roja del piso 2 lo anuncia).
+y Armería (laberinto de pasillos de 2.5 m; reja con código 1348 grabado en el escudo del fundador).
+Armaduras ruidosas y rápidas, reflectores de exhibición, interruptor dañado. La cámara norte de la Armería guarda
+la tarjeta roja que abre el piso 3; al colocar el fragmento 2 en el pedestal se amplía la batería de la linterna.
+**Nivel 3 "Huesos en la oscuridad" (piso 3):** Pabellón de Paleontología, laboratorio de la doctora y Bóveda de Contención.
+Un fósil depredador se mueve cuando no lo miras; la secuencia de placas óseas abre la bóveda, donde está el fragmento 3.
+Una escalera protegida baja desde el pabellón hasta el sótano.
+
+**Nivel 4 "La cripta" (sótano):** escalera de tres tramos, catacumba con sarcófagos y antorchas, registro sobre el sello y tres momias que despiertan al entrar. El fragmento 4 está al fondo; al tomarlo, el jugador vuelve a la Sala Egipcia para completar el pedestal.
+
+**Final "El guardián":** al colocar las cuatro piezas, la salida se cierra, el gran Anubis despierta y los fragmentos se dispersan por la sala. Anubis persigue al guardia cuando no lo mira y lanza tres varillas con aviso previo. Hay que esquivarlas, reunir las cuatro piezas y cerrar de nuevo el sello.
 
 ## Controles
 - WASD moverse (hacia donde mira el guardia) · Shift correr (energía STA) · Mouse girar/cámara
@@ -51,12 +57,14 @@ Dentro del editor con "Embed Game" la pantalla completa no funciona (limitación
 
 ## Estructura
 - scenes/museum.tscn: escena principal; todo el juego como nodos (Mundo, Guardia, Zonas, Interactivos, HUD...).
-- scripts/museum.gd: conecta la escena, cámara en tercera persona, espejo, señuelo, tensión, pausa.
+- scripts/museum.gd: conecta la escena, cámaras, espejo, señuelo, tensión, pausa y final.
 - scripts/environment/: museum_builder (Sala Egipcia), office_builder, room_*.gd (vestíbulo, control, curadora,
-  restauración, escalera, galería, armería sobre room_base.gd), cctv_system, build_utils, estatua_modelos.
+  restauración, escalera, galería, armería, paleontología y cripta sobre room_base.gd), cctv_system,
+  build_utils, estatua_modelos.
+- scripts/enemies/: estatua_enemiga (regla de observación y captura), anubis_boss (varillas y cierre final).
 - scripts/game/: game_state, interactables, zona_activacion, objeto_interactivo, reflector.
 - scripts/ui/, scripts/audio/sfx.gd (sonidos generados por código; sin voces), legacy/ (archivos viejos).
 - docs/RUBRICA.md: cómo cumple la rúbrica del mini prototipo.
 
 ## Pendiente
-Piso 3, uso extendido del walkie, modelos y audio reales, personajes.
+Uso extendido del walkie, modelos y audio reales, personajes y balance final.

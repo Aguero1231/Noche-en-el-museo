@@ -6,11 +6,15 @@ extends Node
 
 signal mensaje(texto: String)
 signal radio(texto: String)
+@warning_ignore("unused_signal") # Se emite desde room_base.gd y office_builder.gd.
 signal nota(datos: Dictionary)           # {titulo, texto, estilo, firma}
+@warning_ignore("unused_signal") # Se emite desde room_base.gd y se conecta en museum.gd.
 signal pedir_codigo(datos: Dictionary)   # {titulo, correcto, longitud, pista, al_resolver}
 signal inventario_cambio(item: String)
 signal sonido(nombre: String)
+@warning_ignore("unused_signal") # Se emite desde room_base.gd y museum_builder.gd.
 signal recargar_bateria(porcentaje: float)
+@warning_ignore("unused_signal") # Lo emiten distintos cuartos; museum.gd escucha este bus.
 signal despertar(grupo: String)          # despierta a las estatuas de un grupo ("wake_galeria"...)
 
 const MINUTOS_JUEGO_POR_SEGUNDO := 0.25   # 1 min del juego = 4 s reales (00:00 -> 06:00 en 24 min)
@@ -69,17 +73,17 @@ func avanzar_reloj(delta: float) -> void:
 
 func hora_texto() -> String:
 	var m := int(minutos)
-	return "%02d:%02d" % [m / 60, m % 60]
+	return "%02d:%02d" % [floori(float(m) / 60.0), m % 60]
 
 
 func hora_con_segundos() -> String:
 	var total := int(minutos * 60.0)
-	return "%02d:%02d:%02d" % [total / 3600, (total / 60) % 60, total % 60]
+	return "%02d:%02d:%02d" % [floori(float(total) / 3600.0), floori(float(total) / 60.0) % 60, total % 60]
 
 
 func faltan_texto() -> String:
 	var resto := int(360.0 - minutos)
-	return "%02d:%02d" % [resto / 60, resto % 60]
+	return "%02d:%02d" % [floori(float(resto) / 60.0), resto % 60]
 
 
 func fragmentos_total() -> int:
@@ -101,6 +105,13 @@ func objetivo_actual() -> String:
 		obj = "Busca la tarjeta de acceso en la oficina de la Dra. Torres."
 	elif not flag("restauracion_abierta"):
 		obj = "Abre la Sala de Restauración con la tarjeta dorada."
+	elif flag("boss_anubis_activo"):
+		if cantidad("fragmento") < FRAGMENTOS_TOTALES:
+			obj = "Jefe final: recupera los fragmentos dispersos (%d/4). Esquiva las varillas de Anubis." % cantidad("fragmento")
+		else:
+			obj = "Vuelve al pedestal con los cuatro fragmentos y cierra el sello."
+	elif flag("boss_anubis_derrotado"):
+		obj = "El sello está cerrado. Sobreviviste al turno de noche."
 	elif not flag("escalera_abierta"):
 		# Nivel 1: primer fragmento y tarjeta azul
 		if fragmentos_total() < 1:
@@ -113,21 +124,38 @@ func objetivo_actual() -> String:
 			obj = "Abre la escalera de servicio (junto a la entrada) con la tarjeta azul."
 	elif not flag("piso2_visitado"):
 		obj = "Sube por la escalera de servicio al Nivel 2 (Galería Medieval)."
-	elif cantidad("fragmento_colocado") < 3:
-		# Nivel 2: fragmentos 2 y 3
-		if not (flag("frag2") and flag("frag3")):
-			var falta := ""
-			if not flag("frag2"):
-				falta += "fragmento 2 (tumba del caballero)"
-			if not flag("frag3"):
-				falta += (" y " if falta != "" else "") + "fragmento 3 (Armería)"
-			obj = "Nivel 2: consigue el " + falta + "."
-			if not flag("frag3") and not flag("armeria_abierta"):
-				obj += " La reja de la Armería pide un año de 4 dígitos."
+	elif cantidad("fragmento_colocado") < 2:
+		# Nivel 2 aporta un unico fragmento; la Armeria guarda el acceso al piso 3.
+		if not flag("frag2"):
+			obj = "Nivel 2: encuentra el fragmento 2 en la tumba de Sir Edric."
+		elif cantidad("fragmento") > 0:
+			obj = "Regresa al Pedestal de Sellado y coloca el fragmento 2."
+		elif not flag("armeria_abierta"):
+			obj = "Abre la reja de la Armería. Busca el año de fundación de la Orden."
+		elif not tiene("tarjeta_roja"):
+			obj = "Busca en la cámara norte de la Armería la tarjeta del piso 3."
 		else:
-			obj = "Baja al Pedestal de Sellado (Sala Egipcia) y coloca los fragmentos."
-	elif not tiene("tarjeta_roja") and not flag("piso3_abierto"):
-		obj = "Toma la tarjeta de acceso Nivel 2 del pedestal."
+			obj = "Vuelve al Pedestal de Sellado y coloca el fragmento 2."
+	elif not tiene("tarjeta_roja"):
+		obj = "Busca la tarjeta de acceso al piso 3 en la cámara norte de la Armería."
+	elif not flag("piso3_abierto"):
+		obj = "Usa la tarjeta roja para abrir la escalera al piso 3."
+	elif cantidad("fragmento_colocado") < 3:
+		if not flag("frag3"):
+			obj = "Piso 3: encuentra el tercer fragmento en la Bóveda de Contención."
+		elif cantidad("fragmento") > 0:
+			obj = "Regresa a la Sala Egipcia y coloca el tercer fragmento."
+		else:
+			obj = "Regresa al Pedestal de Sellado para continuar al piso 4."
+	elif not flag("frag4"):
+		if not flag("piso4_visitado"):
+			obj = "Baja por la escalera de Paleontología hasta la cripta del piso 4."
+		else:
+			obj = "Piso 4: encuentra el cuarto fragmento y evita a las momias."
+	elif cantidad("fragmento") > 0:
+		obj = "Regresa a la Sala Egipcia y coloca el cuarto fragmento en el pedestal."
+	elif cantidad("fragmento_colocado") >= FRAGMENTOS_TOTALES:
+		obj = "El sello está completo. Algo despierta en la Sala Egipcia..."
 	else:
-		obj = "Sube y abre la escalera al Piso 3 con la tarjeta roja. (Nivel 3: próximamente)"
+		obj = "Regresa a la Sala Egipcia y reúne las cuatro piezas en el pedestal."
 	return "OBJETIVO: %s\n%s" % [obj, fila]

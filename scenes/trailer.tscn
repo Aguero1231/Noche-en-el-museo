@@ -1,0 +1,72 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/museum.tscn" id="1_museum"]
+[ext_resource type="Script" path="res://scripts/ui/trailer.gd" id="2_trailer"]
+[ext_resource type="AudioStream" path="res://assets/audio/Noche.ogg" id="3_music"]
+
+[node name="Trailer" type="Node3D"]
+script = ExtResource("2_trailer")
+
+[node name="Museum" parent="." instance=ExtResource("1_museum")]
+
+[node name="TrailerCamera" type="Camera3D" parent="."]
+current = true
+fov = 58.0
+
+[node name="TrailerMusic" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_music")
+volume_db = -7.0
+
+[node name="CinematicUI" type="CanvasLayer" parent="."]
+
+[node name="Fade" type="ColorRect" parent="CinematicUI"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="Title" type="Label" parent="CinematicUI"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.86
+anchor_right = 0.5
+anchor_bottom = 0.86
+offset_left = -520.0
+offset_top = -38.0
+offset_right = 520.0
+offset_bottom = 0.0
+theme_override_colors/font_color = Color(0.93, 0.76, 0.36, 1)
+theme_override_colors/font_outline_color = Color(0.015, 0.01, 0.005, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 30
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Subtitle" type="Label" parent="CinematicUI"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.92
+anchor_right = 0.5
+anchor_bottom = 0.92
+offset_left = -520.0
+offset_top = -8.0
+offset_right = 520.0
+offset_bottom = 32.0
+theme_override_colors/font_color = Color(0.88, 0.87, 0.81, 1)
+theme_override_colors/font_outline_color = Color(0.015, 0.01, 0.005, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 19
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ExitButton" type="Button" parent="CinematicUI"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -174.0
+offset_top = 18.0
+offset_right = -24.0
+offset_bottom = 50.0
+theme_override_colors/font_color = Color(0.88, 0.82, 0.69, 1)
+text = "SALTAR  ·  ESC"

@@ -21,10 +21,10 @@ func _init() -> void:
 	_mat_contorno.grow_amount = 0.004
 
 
-func registrar(nodo: Node3D, duenio: Object, tipo: String, texto: String, alcance: float = 3.0, offset: Vector3 = Vector3.ZERO, datos: Dictionary = {}, resaltar: Node = null) -> Dictionary:
+func registrar(nodo: Node3D, duenio: Object, tipo: String, texto: String, alcance: float = 3.0, offset: Vector3 = Vector3.ZERO, datos: Dictionary = {}, nodo_resaltado: Node = null) -> Dictionary:
 	var it: Dictionary = {
 		"nodo": nodo, "duenio": duenio, "tipo": tipo, "texto": texto,
-		"alcance": alcance, "offset": offset, "resaltar": resaltar, "activo": true,
+		"alcance": alcance, "offset": offset, "resaltar": nodo_resaltado, "activo": true,
 	}
 	for k in datos.keys():
 		it[k] = datos[k]

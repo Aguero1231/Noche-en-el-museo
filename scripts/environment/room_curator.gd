@@ -42,7 +42,7 @@ func build() -> void:
 
 func _escritorio_principal() -> void:
 	# Escritorio junto a la pared oeste (su frente mira hacia +x: hacia la puerta)
-	var d := escritorio(Vector3(-15.1, 0, 20.0), 90.0, 2.4, 1.0, 0.76)
+	escritorio(Vector3(-15.1, 0, 20.0), 90.0, 2.4, 1.0, 0.76)
 	silla(Vector3(-13.9, 0, 20.0), 90.0, Color(0.25, 0.1, 0.08))
 	lampara_escritorio(self, Vector3(-15.4, 0.76, 18.95), 0.7)
 	var oro := u.gold()
@@ -108,9 +108,10 @@ func _pizarra() -> void:
 	t += "3. Pueden apagar las luces cercanas.\n"
 	t += "4. Los reflectores de exhibición fijados sobre ellas las inmovilizan para siempre.\n\n"
 	t += "[b]FRAGMENTOS DEL AMULETO (4)[/b]\n"
-	t += "· 1 → Restauración (Planta baja)\n"
-	t += "· 2 y 3 → Galería Medieval / Armería (Piso 2)\n"
-	t += "· 4 → Bóveda (Piso 3)\n\n"
+	t += "· 1 → Restauración (Piso 1)\n"
+	t += "· 2 → Tumba de Sir Edric (Piso 2)\n"
+	t += "· 3 → Bóveda de Contención (Piso 3)\n"
+	t += "· 4 → Cripta del sótano (Piso 4)\n\n"
 	t += "[b]PEDESTAL DE SELLADO[/b]: Sala Egipcia, frente al gran Anubis.\n"
 	t += "[i]Hora límite: antes de las 06:00, cuando se desbloquean las puertas.[/i]"
 	var obj := u.node3d(self, "Pizarra_Objetivo", Vector3(-12.2, 1.4, Z0 + 0.6))
@@ -143,7 +144,7 @@ func _estantes_y_extras() -> void:
 
 func _escritorio_lateral() -> void:
 	# Escritorio lateral con la tarjeta dorada (la de la escena 2 del storyboard)
-	var d := escritorio(Vector3(-10.5, 0, 22.65), 180.0, 1.4, 0.6, 0.75)
+	escritorio(Vector3(-10.5, 0, 22.65), 180.0, 1.4, 0.6, 0.75)
 	lampara_escritorio(self, Vector3(-9.95, 0.75, 22.75), 0.5)
 	var tarjeta := u.node3d(self, "TarjetaDorada", Vector3(-10.7, 0.765, 22.55), 15.0)
 	var oro_t := u.mat(Color(0.9, 0.7, 0.2), 0.3, 0.8, Color(0.8, 0.55, 0.1), 0.6)

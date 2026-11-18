@@ -9,6 +9,7 @@ const COLOR_VALOR := Color(0.92, 0.85, 0.66)
 var _rows: Dictionary = {}          # key -> Control
 var _value_labels: Dictionary = {}  # key -> Label
 var _building := true
+var mostrar_opcion_trailer := false
 
 
 func _ready() -> void:
@@ -21,10 +22,12 @@ func _ready() -> void:
 	_add_slider("Brillo", "brightness", 0.6, 1.6, 0.05)
 	_add_quality()
 	_add_check("Mostrar FPS", "show_fps")
+	if mostrar_opcion_trailer:
+		_add_check("Modo tráiler  ·  ocultar HUD y aplicar filtro", "trailer_mode")
 
 	var reset := Button.new()
 	reset.text = "Restablecer valores"
-	reset.pressed.connect(func(): Settings.reset_defaults())
+	reset.pressed.connect(func(): Settings.reset_defaults(mostrar_opcion_trailer))
 	add_child(reset)
 
 	Settings.changed.connect(_on_settings_changed)
@@ -106,6 +109,8 @@ func _refresh_all() -> void:
 	_set_check("fullscreen", Settings.fullscreen)
 	_set_check("vsync", Settings.vsync)
 	_set_check("show_fps", Settings.show_fps)
+	if _rows.has("trailer_mode"):
+		_set_check("trailer_mode", Settings.trailer_mode)
 	_set_slider("volume", Settings.volume, "%d%%" % int(round(Settings.volume * 100.0)))
 	_set_slider("sensitivity", Settings.sensitivity, "%.2f" % Settings.sensitivity)
 	_set_slider("fov", Settings.fov, "%d°" % int(Settings.fov))

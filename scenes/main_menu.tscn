@@ -33,9 +33,9 @@ loop = true
 [node name="MenuOpciones" type="VBoxContainer" parent="." unique_id=485546401]
 layout_mode = 0
 offset_left = 108.0
-offset_top = 420.0
+offset_top = 370.0
 offset_right = 500.0
-offset_bottom = 620.0
+offset_bottom = 640.0
 theme_override_constants/separation = 16
 
 [node name="JugarButton" type="Button" parent="MenuOpciones" unique_id=726796970]
@@ -49,6 +49,19 @@ theme_override_styles/pressed = SubResource("StyleBoxEmpty_flat")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_flat")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_flat")
 text = "JUGAR"
+alignment = 0
+
+[node name="TrailerButton" type="Button" parent="MenuOpciones"]
+custom_minimum_size = Vector2(300, 30)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_colors/font_color = Color(0.92, 0.92, 0.88, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxEmpty_flat")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_flat")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_flat")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_flat")
+text = "VER TRÁILER"
 alignment = 0
 
 [node name="OpcionesButton" type="Button" parent="MenuOpciones" unique_id=976001432]

@@ -572,21 +572,21 @@ func _crear_alfombra_y_silla() -> void:
 
 
 func _crear_escritorio() -> void:
-	var escritorio := _nodo("Escritorio", Vector3(0.2, 0, 0.5))
+	var mesa_trabajo := _nodo("Escritorio", Vector3(0.2, 0, 0.5))
 	var sup := ESC_Y
-	_caja("Tapa", Vector3(2.2, 0.06, 1.0), Vector3(0, sup - 0.03, 0), mat_madera, escritorio)
-	_caja("BordeFrente", Vector3(2.2, 0.03, 0.03), Vector3(0, sup - 0.075, 0.485), _mat(Color(0.14, 0.08, 0.05), 0.5), escritorio, false)
-	_caja("BaseIzq", Vector3(0.05, sup - 0.06, 0.9), Vector3(-1.0, (sup - 0.06) / 2, 0), mat_metal, escritorio)
-	_caja("BaseDer", Vector3(0.05, sup - 0.06, 0.9), Vector3(1.0, (sup - 0.06) / 2, 0), mat_metal, escritorio)
+	_caja("Tapa", Vector3(2.2, 0.06, 1.0), Vector3(0, sup - 0.03, 0), mat_madera, mesa_trabajo)
+	_caja("BordeFrente", Vector3(2.2, 0.03, 0.03), Vector3(0, sup - 0.075, 0.485), _mat(Color(0.14, 0.08, 0.05), 0.5), mesa_trabajo, false)
+	_caja("BaseIzq", Vector3(0.05, sup - 0.06, 0.9), Vector3(-1.0, (sup - 0.06) / 2, 0), mat_metal, mesa_trabajo)
+	_caja("BaseDer", Vector3(0.05, sup - 0.06, 0.9), Vector3(1.0, (sup - 0.06) / 2, 0), mat_metal, mesa_trabajo)
 	# Bandeja de cajones a la derecha (por debajo)
 	var m_caj := _mat(Color(0.30, 0.20, 0.12), 0.6)
-	_caja("Cajonera", Vector3(0.5, 0.6, 0.85), Vector3(0.7, 0.3, 0), m_caj, escritorio, false)
+	_caja("Cajonera", Vector3(0.5, 0.6, 0.85), Vector3(0.7, 0.3, 0), m_caj, mesa_trabajo, false)
 	for k in 2:
-		_caja("CajonFrente%d" % k, Vector3(0.02, 0.24, 0.7), Vector3(0.7 - 0.26, 0.15 + k * 0.3, 0), _mat(Color(0.36, 0.24, 0.14), 0.5), escritorio, false)
+		_caja("CajonFrente%d" % k, Vector3(0.02, 0.24, 0.7), Vector3(0.7 - 0.26, 0.15 + k * 0.3, 0), _mat(Color(0.36, 0.24, 0.14), 0.5), mesa_trabajo, false)
 
 	# ---------------- Zona derecha: computadora CRT con teclado
 	var m_crema := _mat(Color(0.62, 0.55, 0.42), 0.7)
-	var pc := _nodo("ComputadoraCRT", Vector3(0.72, sup, -0.12), 20, escritorio)
+	var pc := _nodo("ComputadoraCRT", Vector3(0.72, sup, -0.12), 20, mesa_trabajo)
 	_caja("Caja", Vector3(0.5, 0.12, 0.42), Vector3(0, 0.06, 0), m_crema, pc, false)
 	_caja("Monitor", Vector3(0.46, 0.42, 0.44), Vector3(0, 0.33, 0), m_crema, pc, false)
 	_caja("MonitorAtras", Vector3(0.3, 0.32, 0.34), Vector3(0.3, 0.33, 0), m_crema, pc, false)
@@ -598,7 +598,7 @@ func _crear_escritorio() -> void:
 	reg(pc, "terminal_pc", "Revisar computadora", {}, 3.0, Vector3(0, 0.3, 0), pc)
 
 	# ---------------- Zona izquierda: mapa, libreta, teléfono
-	var mapa := _nodo("Mapa", Vector3(-0.4, sup + 0.003, 0.0), -10, escritorio)
+	var mapa := _nodo("Mapa", Vector3(-0.4, sup + 0.003, 0.0), -10, mesa_trabajo)
 	var m_tinta := _mat(Color(0.35, 0.22, 0.1), 0.9)
 	_caja("Papel", Vector3(0.5, 0.005, 0.62), Vector3.ZERO, _mat(Color(0.72, 0.58, 0.34), 0.9), mapa, false)
 	_toro("Emblema", 0.04, 0.08, Vector3(0, 0.012, 0.03), m_tinta, mapa)
@@ -612,7 +612,7 @@ func _crear_escritorio() -> void:
 	plano += "[i]Piso 2: Galería Medieval y Armería. Piso 3: Paleontología y Bóveda.[/i]"
 	nota(mapa, "Mirar plano del museo", "Plano del museo", plano, "papel", "", mapa)
 
-	var libreta := _nodo("Libreta", Vector3(-0.88, sup + 0.01, 0.3), 12, escritorio)
+	var libreta := _nodo("Libreta", Vector3(-0.88, sup + 0.01, 0.3), 12, mesa_trabajo)
 	_caja("Hojas", Vector3(0.2, 0.02, 0.28), Vector3.ZERO, _mat(Color(0.75, 0.7, 0.55), 0.9), libreta, false)
 	_caja("Tapa", Vector3(0.21, 0.008, 0.29), Vector3(0, -0.012, 0), _mat(Color(0.15, 0.1, 0.07), 0.7), libreta, false)
 	_cilindro("Lapiz", 0.006, 0.006, 0.15, Vector3(0.05, 0.016, 0.02), _mat(Color(0.75, 0.55, 0.1), 0.5), libreta, Vector3(90, 0, 20))
@@ -627,7 +627,7 @@ func _crear_escritorio() -> void:
 	nota(libreta, "Leer hoja de rondas", "Hoja de rondas", ronda, "papel", "", libreta)
 
 	# Carta de Roberto (la que cuenta el inicio de la historia)
-	var carta := _nodo("CartaRoberto", Vector3(-0.8, sup + 0.012, -0.38), -18, escritorio)
+	var carta := _nodo("CartaRoberto", Vector3(-0.8, sup + 0.012, -0.38), -18, mesa_trabajo)
 	_caja("Papel", Vector3(0.21, 0.004, 0.3), Vector3.ZERO, _mat(Color(0.88, 0.82, 0.64), 0.95), carta, false)
 	_caja("Sobre", Vector3(0.12, 0.003, 0.08), Vector3(0.05, 0.004, 0.12), _mat(Color(0.7, 0.62, 0.45), 0.9), carta, false)
 	var cr := "[b]ALEX:[/b]\n\n"
@@ -642,48 +642,48 @@ func _crear_escritorio() -> void:
 	nota(carta, "Leer carta de Roberto", "Carta de Roberto", cr, "papel", "— Roberto", carta, Callable(self, "_leyo_carta"))
 
 	# Walkie-talkie (para hablar con Roberto)
-	var walkie := _nodo("Walkie", Vector3(0.3, sup + 0.04, -0.38), -25, escritorio)
+	var walkie := _nodo("Walkie", Vector3(0.3, sup + 0.04, -0.38), -25, mesa_trabajo)
 	var m_wk := _mat(Color(0.12, 0.12, 0.13), 0.5, Color.BLACK, 0.3)
 	_caja("Cuerpo", Vector3(0.07, 0.17, 0.035), Vector3(0, 0.0, 0), m_wk, walkie, false).rotation_degrees.x = 90
 	_cilindro("Antena", 0.007, 0.007, 0.12, Vector3(0.025, 0.0, -0.13), m_wk, walkie, Vector3(90, 0, 0))
 	_caja("Perilla", Vector3(0.02, 0.02, 0.01), Vector3(-0.02, 0.02, -0.05), _mat(Color(0.8, 0.1, 0.1), 0.4), walkie, false)
 	pickup(walkie, "Recoger walkie-talkie", "walkie", "Walkie-talkie en el cinturón. Canal 3.", 1, Callable(self, "_tomo_walkie"))
 
-	var tel := _nodo("Telefono", Vector3(-0.9, sup, -0.2), 8, escritorio)
+	var tel := _nodo("Telefono", Vector3(-0.9, sup, -0.2), 8, mesa_trabajo)
 	var m_tel := _mat(Color(0.12, 0.10, 0.09), 0.4)
 	_caja("Base", Vector3(0.17, 0.05, 0.21), Vector3(0, 0.025, 0), m_tel, tel, false)
 	_caja("Auricular", Vector3(0.05, 0.03, 0.2), Vector3(0, 0.065, 0), m_tel, tel, false)
 
 	# ---------------- Zona central: ankh sobre una base, ordenado
 	var m_piedra := _mat(Color(0.62, 0.57, 0.48), 0.8)
-	_caja("BaseAnkh", Vector3(0.28, 0.008, 0.42), Vector3(0.05, sup + 0.004, 0.08), _mat(Color(0.10, 0.07, 0.05), 0.7), escritorio, false)
-	var ankh := _nodo("Ankh", Vector3(0.05, sup + 0.024, 0.13), -15, escritorio)
+	_caja("BaseAnkh", Vector3(0.28, 0.008, 0.42), Vector3(0.05, sup + 0.004, 0.08), _mat(Color(0.10, 0.07, 0.05), 0.7), mesa_trabajo, false)
+	var ankh := _nodo("Ankh", Vector3(0.05, sup + 0.024, 0.13), -15, mesa_trabajo)
 	_caja("Barra", Vector3(0.06, 0.03, 0.3), Vector3.ZERO, m_piedra, ankh, false)
 	_caja("Brazos", Vector3(0.24, 0.03, 0.06), Vector3(0, 0, -0.05), m_piedra, ankh, false)
 	_toro("Lazo", 0.04, 0.09, Vector3(0, 0, -0.2), m_piedra, ankh)
 	examinar(ankh, "Examinar ankh", "Un ankh de piedra, réplica de la tienda del museo. Está tibio... como si algo respirara dentro.", ankh)
 
 	# ---------------- Frente derecho: linterna y taza
-	var linterna := _nodo("Linterna", Vector3(0.5, sup + 0.035, 0.33), 45, escritorio)
+	var linterna := _nodo("Linterna", Vector3(0.5, sup + 0.035, 0.33), 45, mesa_trabajo)
 	var m_negro := _mat(Color(0.10, 0.10, 0.10), 0.3, Color.BLACK, 0.4)
 	_cilindro("Cuerpo", 0.03, 0.03, 0.2, Vector3.ZERO, m_negro, linterna, Vector3(90, 0, 0))
 	_cilindro("Cabeza", 0.05, 0.035, 0.07, Vector3(0, 0, -0.13), m_negro, linterna, Vector3(90, 0, 0))
 	_cilindro("Lente", 0.045, 0.045, 0.01, Vector3(0, 0, -0.168), _mat(Color.WHITE, 0.1, Color(0.8, 0.9, 1.0), 0.0, 0.8), linterna, Vector3(90, 0, 0))
 	pickup(linterna, "Recoger linterna", "linterna", "Linterna encendida  -  Clic derecho o F para apagar / prender", 1, Callable(), Vector3(0, 0, -0.05))
 
-	var taza := _nodo("Taza", Vector3(0.95, sup, 0.32), 0, escritorio)
+	var taza := _nodo("Taza", Vector3(0.95, sup, 0.32), 0, mesa_trabajo)
 	_cilindro("Cuerpo", 0.04, 0.038, 0.09, Vector3(0, 0.045, 0), _mat(Color(0.75, 0.72, 0.65), 0.4), taza)
 	_cilindro("Cafe", 0.034, 0.034, 0.005, Vector3(0, 0.088, 0), _mat(Color(0.08, 0.04, 0.02), 0.2), taza)
 	_toro("Asa", 0.012, 0.028, Vector3(0.05, 0.045, 0), _mat(Color(0.75, 0.72, 0.65), 0.4), taza, Vector3(0, 0, 90))
 
 	# ---------------- Frente izquierdo: lupa de escritorio (sobre el mapa, como en la referencia)
-	var lupa := _nodo("LupaEscritorio", Vector3(-0.4, sup + 0.03, 0.3), 200, escritorio)
+	var lupa := _nodo("LupaEscritorio", Vector3(-0.4, sup + 0.03, 0.3), 200, mesa_trabajo)
 	_toro("Aro", 0.075, 0.10, Vector3.ZERO, _mat(Color(0.30, 0.16, 0.08), 0.5, Color.BLACK, 0.3), lupa)
 	_caja("Mango", Vector3(0.03, 0.025, 0.2), Vector3(0, 0, 0.2), _mat(Color(0.25, 0.12, 0.06), 0.6), lupa, false)
 	_cilindro("CristalLupa", 0.075, 0.075, 0.008, Vector3.ZERO, _mat_vidrio(Color(0.8, 0.9, 1.0, 0.3)), lupa)
 
 	# ---------------- Fondo: pila de documentos y carpeta
-	var docs := _nodo("Documentos", Vector3(-0.05, sup, -0.37), -5, escritorio)
+	var docs := _nodo("Documentos", Vector3(-0.05, sup, -0.37), -5, mesa_trabajo)
 	for i in 5:
 		_caja("Hoja%d" % i, Vector3(0.2, 0.004, 0.26), Vector3(0.002 * i, 0.002 + i * 0.004, 0.003 * i), _mat(Color(0.82, 0.76, 0.62), 0.9), docs, false)
 	_caja("Carpeta", Vector3(0.22, 0.012, 0.28), Vector3(0, 0.026, 0), _mat(Color(0.28, 0.16, 0.10), 0.7), docs, false)
@@ -801,7 +801,7 @@ func _crear_pared_frente() -> void:
 	var papeles: Array[Color] = [Color(0.88, 0.84, 0.7), Color(0.9, 0.9, 0.8), Color(0.85, 0.7, 0.45), Color(0.8, 0.88, 0.9)]
 	for k in 4:
 		var px := -0.32 + (k % 2) * 0.55
-		var py := 0.12 - (k / 2) * 0.28
+		var py := 0.12 - floori(float(k) / 2.0) * 0.28
 		_caja("Aviso%d" % k, Vector3(0.28, 0.22, 0.004), Vector3(px, py, 0.02), _mat(papeles[k], 0.95), cork, false).rotation_degrees.z = (k - 1.5) * 4.0
 		_caja("Chinche%d" % k, Vector3(0.02, 0.02, 0.012), Vector3(px, py + 0.08, 0.026), _mat(Color(0.8, 0.1, 0.1), 0.5), cork, false)
 	var ta := "[b]AVISO INTERNO - PROTOCOLO SEG-13[/b]\n\n"

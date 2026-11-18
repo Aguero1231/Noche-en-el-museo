@@ -8,7 +8,7 @@ extends "res://scripts/environment/room_base.gd"
 ## - 3 armaduras ruidosas y rapidas. Cada una tiene un REFLECTOR con su panel: gira el foco hasta
 ##   que la luz toque a la armadura y quedara inmovilizada para siempre.
 ## - La reja de la ARMERIA (norte) pide un codigo de 4 digitos: el año grabado en el escudo del fundador.
-## - La puerta del PISO 3 (este) se abre con la tarjeta roja (todavia no esta construido).
+## - La puerta del PISO 3 (este) se abre con la tarjeta roja y conduce al pabellon de Paleontologia.
 
 const EstatuaEnemiga = preload("res://scripts/enemies/estatua_enemiga.gd")
 const Modelos = preload("res://scripts/environment/estatua_modelos.gd")
@@ -151,20 +151,20 @@ func _luces() -> void:
 			var a := k * TAU / 8.0
 			u.cyl(c, Vector3(sin(a) * 0.66, 4.5, cos(a) * 0.66), 0.025, 0.025, 0.14, u.mat(Color(0.9, 0.88, 0.8), 0.8))
 			u.sphere(c, Vector3(sin(a) * 0.66, 4.62, cos(a) * 0.66), 0.03, llama, Vector3(1, 1.7, 1))
-		var l := u.omni(c, Vector3(0, 4.2, 0), Color(1.0, 0.7, 0.4), 1.3, 9.5)
+		var l := u.omni(c, Vector3(0, 4.2, 0), Color(1.0, 0.7, 0.4), 1.3, 4.4)
 		parpadear(l, 6.0, true)
 	# Antorchas junto a la entrada y a la reja
 	for p in [[-8.7, 28.5, 90.0], [8.7, 28.5, -90.0], [-8.7, 6.0, 90.0], [8.7, 6.0, -90.0]]:
 		var t := u.node3d(self, "Antorcha", Vector3(float(p[0]), 2.4, float(p[1])), float(p[2]))
 		u.box(t, Vector3(0, 0, 0.1), Vector3(0.1, 0.5, 0.1), u.wood(), false, Vector3(-18, 0, 0))
 		u.sphere(t, Vector3(0, 0.34, 0.2), 0.07, u.mat(Color(1.0, 0.85, 0.5), 0.5, 0.0, Color(1.0, 0.6, 0.15), 3.5), Vector3(1, 1.8, 1))
-		var l2 := u.omni(t, Vector3(0, 0.45, 0.3), Color(1.0, 0.62, 0.3), 0.9, 6.0)
+		var l2 := u.omni(t, Vector3(0, 0.45, 0.3), Color(1.0, 0.62, 0.3), 0.9, 4.2)
 		parpadear(l2, 11.0, false)
 	# Luz de luna fria que entra por los vitrales
-	u.omni(self, Vector3(-7.0, 3.6, 12.0), Color(0.35, 0.45, 1.0), 0.7, 10.0)
-	u.omni(self, Vector3(7.0, 3.6, 24.0), Color(0.5, 0.35, 0.9), 0.6, 10.0)
-	u.omni(self, Vector3(7.2, 3.4, 15.0), Color(0.4, 0.45, 1.0), 0.7, 9.0)
-	u.omni(self, Vector3(-7.2, 3.4, 23.5), Color(0.5, 0.4, 0.95), 0.7, 9.0)
+	u.omni(self, Vector3(-7.0, 3.6, 12.0), Color(0.35, 0.45, 1.0), 0.7, 4.4)
+	u.omni(self, Vector3(7.0, 3.6, 24.0), Color(0.5, 0.35, 0.9), 0.6, 4.4)
+	u.omni(self, Vector3(7.2, 3.4, 15.0), Color(0.4, 0.45, 1.0), 0.7, 4.2)
+	u.omni(self, Vector3(-7.2, 3.4, 23.5), Color(0.5, 0.4, 0.95), 0.7, 4.2)
 
 
 func _vitrinas() -> void:
@@ -270,7 +270,7 @@ func _tumba() -> void:
 	var tx := "[b]DIARIO DE LA DRA. ELENA TORRES - 5[/b]\n\n"
 	tx += "Sir Edric fue el ultimo custodio del amuleto. Su orden, la [b]Orden del Acero[/b], dejo vigilantes de metal en esta galeria: armaduras que ahora se mueven cuando nadie las mira, y mucho mas rapido que las estatuas de piedra.\n\n"
 	tx += "Los [b]reflectores de exhibicion[/b] del techo son la defensa original: un foco orientable. Giren cada uno con su panel hasta que la luz toque a la armadura y quedara [b]inmovilizada para siempre[/b]. Solo un rumbo funciona.\n\n"
-	tx += "El segundo fragmento esta sobre el pecho de Edric. El tercero, al fondo de la Armeria: la reja se abre con el [b]año de fundacion de la Orden[/b], grabado en el escudo del fundador.\n\n"
+	tx += "El segundo fragmento esta sobre el pecho de Edric. La [b]tarjeta roja para el piso 3[/b] esta al fondo de la Armeria: la reja se abre con el [b]año de fundacion de la Orden[/b], grabado en el escudo del fundador.\n\n"
 	tx += "[i]Cuando tomen el fragmento, el sepulcro despertara a otra armadura. Aseguren primero la salida.[/i]"
 	nota(d5, "Leer diario", "Diario de la Dra. Torres (5)", tx, "papel", "", d5)
 
@@ -372,26 +372,158 @@ func _abrio_armeria() -> void:
 
 func _puerta_piso3() -> void:
 	var hoja := u.mat(Color(0.2, 0.2, 0.24), 0.5, 0.6)
-	var d := crear_puerta("PuertaPiso3", Vector3(9.25, 0, 6.2), -90.0, 1.4, 2.8, 90.0, hoja, "tarjeta", {
+	# La hoja abre hacia la galería y queda pegada al muro, fuera del primer tramo.
+	var d := crear_puerta("PuertaPiso3", Vector3(9.25, 0, 6.2), -90.0, 1.4, 2.8, -90.0, hoja, "tarjeta", {
 		"item_req": "tarjeta_roja",
 		"msg_falta": "Lector de acceso: se necesita la tarjeta de acceso Nivel 2 (roja).",
 		"al_abrir": Callable(self, "_abrio_piso3"),
 	})
 	lector_tarjeta(d, Vector3(8.96, 1.25, 5.85), -90.0)
-	u.text3d(self, "ESCALERA AL PISO 3", Vector3(8.95, 3.15, 6.9), -90.0, 36, Color(0.95, 0.75, 0.3), 0.004)
-	# Descanso oscuro detras de la puerta (el piso 3 todavia no existe)
-	var osc := u.stone(Color(0.2, 0.2, 0.25), 0.3)
-	u.box(self, Vector3(11.0, -0.25, 6.9), Vector3(3.0, 0.5, 3.0), osc, true)
-	u.box(self, Vector3(11.0, 3.2, 6.9), Vector3(3.0, 0.4, 3.0), osc, true)
-	wall_x(5.35, 9.5, 12.5, 0.3, 3.4, osc)
-	wall_x(8.45, 9.5, 12.5, 0.3, 3.4, osc)
-	wall_z(12.65, 5.2, 8.6, 0.3, 3.4, osc)
-	u.text3d(self, "PISO 3\nPAVELLÓN DE PALEONTOLOGÍA\nPRÓXIMAMENTE", Vector3(12.45, 1.8, 6.9), -90.0, 30, Color(0.95, 0.75, 0.3), 0.004)
+	_escalera_piso3()
+	u.text3d(self, "ESCALERA AL PISO 3", Vector3(8.95, 3.15, 6.9), -90.0, 32, Color(0.95, 0.75, 0.3), 0.004)
+
+
+func _escalera_piso3() -> void:
+	# Torre cerrada: suelo continuo, muros altos y techo por encima de la salida del piso 3.
+	var piedra := u.stone(Color(0.34, 0.36, 0.43), 0.28)
+	var sombra := u.stone(Color(0.20, 0.22, 0.28), 0.32)
+	var bronce := u.metal(Color(0.42, 0.32, 0.18))
+	var piso := u.marble(Color(0.39, 0.40, 0.47), 0.16)
+	u.box(self, Vector3(14.0, -0.25, 7.75), Vector3(9.0, 0.5, 6.2), piso, true, Vector3.ZERO, "PisoTorrePiso3")
+	u.box(self, Vector3(14.0, 12.5, 7.75), Vector3(9.0, 0.4, 6.2), sombra, true, Vector3.ZERO, "TechoTorrePiso3")
+	# Cierres laterales y muro de fondo; el lado oeste queda abierto en el nivel de salida.
+	u.box(self, Vector3(14.0, 6.2, 4.65), Vector3(9.0, 12.4, 0.3), piedra, true, Vector3.ZERO, "MuroSurTorre")
+	u.box(self, Vector3(14.0, 6.2, 10.85), Vector3(9.0, 12.4, 0.3), piedra, true, Vector3.ZERO, "MuroNorteTorre")
+	u.box(self, Vector3(18.35, 6.2, 7.75), Vector3(0.3, 12.4, 6.2), piedra, true, Vector3.ZERO, "MuroEsteTorre")
+	# Cierra solo el costado sur. El vano superior queda completamente libre hacia el piso 3.
+	u.box(self, Vector3(9.55, 7.15, 6.22), Vector3(0.1, 2.7, 3.15), piedra, true, Vector3.ZERO, "MuroOesteAltoSur")
+	# Vigas del techo y un marco de piedra alrededor del tiro.
+	for x_viga in [11.0, 14.0, 17.0]:
+		var x: float = float(x_viga)
+		u.box(self, Vector3(x, 12.22, 7.75), Vector3(0.16, 0.18, 5.8), bronce)
+	for z_marco in [4.82, 10.68]:
+		var z: float = float(z_marco)
+		u.box(self, Vector3(14.0, 11.95, z), Vector3(8.7, 0.16, 0.12), bronce)
+
+	# Plataforma inferior alineada con la puerta; el primer tramo tiene huellas cómodas.
+	var ancho := 2.2
+	var z_bajo := 6.2
+	var z_alto := 9.5
+	var x_inicio := 10.2
+	var x_vuelta := 16.8
+	var ascenso := 4.5
+	var peldenos := 24
+	var carrera := x_vuelta - x_inicio
+	var avance := carrera / float(peldenos)
+	var subida := ascenso / float(peldenos)
+	u.box(self, Vector3(10.05, -0.04, z_bajo), Vector3(1.1, 0.08, 2.2), piedra, true, Vector3.ZERO, "DescansoInferiorPiso3")
+	_tramo_escalera_piso3(x_inicio, x_vuelta, z_bajo, 0.0, ascenso, ancho, peldenos, avance, subida, piedra, bronce)
+	# Descanso amplio de vuelta; conecta los dos tramos sin escalón ni hueco.
+	# El descanso empieza exactamente al terminar el primer tramo: no forma un escalón alto.
+	u.box(self, Vector3(17.5, ascenso - 0.08, 7.85), Vector3(1.4, 0.16, 5.4), piedra, true, Vector3.ZERO, "DescansoGiroPiso3")
+	_tramo_escalera_piso3(x_vuelta, x_inicio, z_alto, ascenso, ascenso * 2.0, ancho, peldenos, avance, subida, piedra, bronce)
+	# El rellano entra ampliamente al piso 3 y se solapa con el último peldaño;
+	# su cara superior queda 5 mm sobre el suelo para quitar la junta sin crear un borde alto.
+	u.box(self, Vector3(10.3, ascenso * 2.0 - 0.02, z_alto), Vector3(3.4, 0.05, 3.2), piso, true, Vector3.ZERO, "DescansoSuperiorPiso3")
+	_barandales_escalera_piso3(x_inicio, x_vuelta, z_bajo, 0.0, ascenso, ancho, bronce, 1.0)
+	_barandales_escalera_piso3(x_vuelta, x_inicio, z_alto, ascenso, ascenso * 2.0, ancho, bronce, -1.0)
+	# Valla central densa: cubre el hueco vertical entre ambos tramos sin invadir el giro.
+	for i in range(17):
+		var t: float = float(i) / 16.0
+		var x: float = lerpf(x_inicio, 16.55, t)
+		u.box(self, Vector3(x, ascenso, 7.85), Vector3(0.09, ascenso * 2.0, 0.10), bronce, true)
+	for y_valla in range(10):
+		var y: float = 0.12 + float(y_valla) * 0.96
+		u.box(self, Vector3(13.35, y, 7.85), Vector3(6.25, 0.055, 0.10), bronce, true)
+	# Vallas que prolongan los pasamanos por los dos costados del descanso de giro.
+	for z_lado_giro in [5.04, 10.66]:
+		var z: float = float(z_lado_giro)
+		for i in range(5):
+			var x: float = lerpf(16.88, 17.98, float(i) / 4.0)
+			u.box(self, Vector3(x, ascenso + 0.48, z), Vector3(0.08, 0.92, 0.08), bronce, true)
+		u.box(self, Vector3(17.43, ascenso + 0.94, z), Vector3(1.18, 0.08, 0.08), bronce, true)
+	# El rellano superior permanece abierto hacia Paleontología; los pasamanos terminan antes del vano.
+	# Umbral y marco de piedra/dorado, inspirados en las entradas de los pisos anteriores.
+	for z_jamba in [7.88, 11.12]:
+		var z: float = float(z_jamba)
+		u.box(self, Vector3(9.62, 10.48, z), Vector3(0.16, 2.9, 0.16), piedra)
+		u.box(self, Vector3(9.52, 10.48, z), Vector3(0.035, 2.72, 0.035), bronce)
+		u.box(self, Vector3(9.62, 11.96, z), Vector3(0.28, 0.16, 0.28), bronce)
+	u.box(self, Vector3(9.62, 11.92, 9.5), Vector3(0.18, 0.18, 2.72), piedra)
+	u.box(self, Vector3(9.50, 11.92, 9.5), Vector3(0.035, 0.035, 2.58), bronce)
+	# Filetes de latón en el piso señalan el umbral sin crear un escalón.
+	for z_borde in [8.0, 11.0]:
+		var z: float = float(z_borde)
+		u.box(self, Vector3(9.98, 9.008, z), Vector3(2.2, 0.016, 0.045), bronce)
+	# Proyector de techo de luz fría; las luces de pared dan un relleno cálido, sin sombras dinámicas.
+	var farol_acceso := u.node3d(self, "FarolAccesoPaleontologia", Vector3(10.45, 11.72, 9.5))
+	u.box(farol_acceso, Vector3(0, 0.12, 0), Vector3(0.62, 0.16, 0.5), bronce)
+	var vidrio_acceso := u.mat(Color(0.43, 0.64, 0.88), 0.4, 0.0, Color(0.28, 0.52, 0.95), 0.75)
+	u.box(farol_acceso, Vector3(0, 0.015, 0), Vector3(0.42, 0.04, 0.32), vidrio_acceso)
+	luz_fija(u.spot(farol_acceso, Vector3(0, -0.08, 0), Vector3(-90, 0, 0), Color(0.70, 0.82, 1.0), 1.55, 8.0, 54.0))
+	for pos_aplique in [Vector3(13.0, 8.8, 4.92), Vector3(13.0, 8.8, 10.58)]:
+		var pos: Vector3 = pos_aplique
+		var aplique := u.node3d(self, "ApliqueTorrePiso3", pos)
+		u.box(aplique, Vector3(0, 0, 0), Vector3(0.30, 0.18, 0.16), bronce)
+		u.sphere(aplique, Vector3(0, 0.0, -0.10), 0.08, vidrio_acceso, Vector3(0.9, 1.25, 0.8))
+		luz_fija(u.omni(aplique, Vector3(0, 0, -0.16), Color(1.0, 0.70, 0.40), 0.8, 5.5))
+	# Tres lámparas cálidas iluminan entrada, giro y salida; luces sin sombras para cuidar FPS.
+	var vidrio := u.mat(Color(0.95, 0.68, 0.34), 0.35, 0.0, Color(1.0, 0.42, 0.12), 1.2)
+	for datos_luz in [Vector3(11.3, 3.4, 4.95), Vector3(17.5, 7.0, 7.8), Vector3(11.2, 10.8, 10.55)]:
+		var pos_luz: Vector3 = datos_luz
+		var aplique := u.node3d(self, "ApliqueEscaleraPiso3", pos_luz)
+		u.box(aplique, Vector3(0, 0, 0), Vector3(0.3, 0.12, 0.28), bronce)
+		u.sphere(aplique, Vector3(0, -0.14, 0), 0.095, vidrio, Vector3(0.8, 1.4, 0.8))
+		luz_fija(u.omni(aplique, Vector3(0, -0.22, 0), Color(1.0, 0.66, 0.36), 0.95, 6.2))
+	u.text3d(self, "SUBIDA A PALEONTOLOGÍA", Vector3(8.95, 3.35, 6.2), -90.0, 25, Color(0.95, 0.78, 0.43), 0.003)
+	u.text3d(self, "PISO 3  ·  PALEONTOLOGÍA", Vector3(9.65, 11.3, 9.5), -90.0, 23, Color(0.95, 0.78, 0.43), 0.003)
+
+
+func _tramo_escalera_piso3(x0: float, x1: float, z: float, y0: float, y1: float, ancho: float, cantidad: int, avance: float, subida: float, piedra: Material, canto: Material) -> void:
+	var dx := x1 - x0
+	var dy := y1 - y0
+	var angulo := atan2(dy, dx)
+	var largo := Vector2(dx, dy).length()
+	var centro := Vector3((x0 + x1) * 0.5, (y0 + y1) * 0.5 - 0.08 * absf(cos(angulo)), z)
+	# Colisión continua bajo las huellas: el jugador sube por la pendiente sin engancharse.
+	u.box(self, centro, Vector3(largo, 0.16, ancho), piedra, true, Vector3(0, 0, rad_to_deg(angulo)), "RampaPiso3")
+	for i in range(cantidad):
+		var fraccion: float = (float(i) + 0.5) / float(cantidad)
+		var x := lerpf(x0, x1, fraccion)
+		var tope := y0 + subida * float(i + 1)
+		u.box(self, Vector3(x, tope - 0.08, z), Vector3(avance + 0.025, 0.16, ancho), piedra)
+		var borde_x := x + signf(dx) * (avance / 2.0 - 0.02)
+		u.box(self, Vector3(borde_x, tope - 0.025, z), Vector3(0.035, 0.035, ancho), canto)
+
+
+func _barandales_escalera_piso3(x0: float, x1: float, z: float, y0: float, y1: float, ancho: float, metal: Material, lado_abierto: float) -> void:
+	var dx := x1 - x0
+	var dy := y1 - y0
+	for lado in [-1.0, 1.0]:
+		var z_baranda: float = z + float(lado) * (ancho * 0.5 + 0.08)
+		var rail_x0 := x0
+		var rail_x1 := x1
+		if is_equal_approx(float(lado), lado_abierto):
+			if dx > 0.0:
+				rail_x1 -= 1.0
+			else:
+				rail_x0 -= 1.0
+		var rail_y0: float = y0 + dy * (rail_x0 - x0) / dx
+		var rail_y1: float = y0 + dy * (rail_x1 - x0) / dx
+		for i in range(25):
+			var t: float = float(i) / 24.0
+			var x := lerpf(rail_x0, rail_x1, t)
+			var y := lerpf(rail_y0, rail_y1, t) + 0.48
+			u.box(self, Vector3(x, y, z_baranda), Vector3(0.07, 0.96, 0.07), metal, true)
+		var rail_largo := Vector2(rail_x1 - rail_x0, rail_y1 - rail_y0).length()
+		var rail_angulo := atan2(rail_y1 - rail_y0, rail_x1 - rail_x0)
+		var centro := Vector3((rail_x0 + rail_x1) * 0.5, (rail_y0 + rail_y1) * 0.5 + 0.98, z_baranda)
+		u.box(self, centro, Vector3(rail_largo, 0.09, 0.09), metal, true, Vector3(0, 0, rad_to_deg(rail_angulo)))
 
 
 func _abrio_piso3() -> void:
 	estado.poner_flag("piso3_abierto")
-	estado.mensaje.emit("Acceso concedido. Piso 3: Pabellón de Paleontología (próximamente).")
+	estado.mensaje.emit("Acceso concedido. Pabellón de Paleontología: nivel 3.")
 
 
 func _avisos() -> void:

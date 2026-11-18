@@ -20,6 +20,7 @@ const ESCALA_NORMAL := Vector2.ONE
 const ESCALA_RESALTADA := Vector2(1.12, 1.12)
 
 @onready var jugar_button: Button = $MenuOpciones/JugarButton
+@onready var trailer_button: Button = $MenuOpciones/TrailerButton
 @onready var opciones_button: Button = $MenuOpciones/OpcionesButton
 @onready var controles_button: Button = $MenuOpciones/ControlesButton
 @onready var creditos_button: Button = $MenuOpciones/CreditosButton
@@ -40,7 +41,7 @@ var botones_menu: Array[Button] = []
 func _ready() -> void:
 	_cerrar_overlays()
 
-	botones_menu = [jugar_button, opciones_button, controles_button, creditos_button, salir_button]
+	botones_menu = [jugar_button, trailer_button, opciones_button, controles_button, creditos_button, salir_button]
 	for boton in botones_menu:
 		boton.pivot_offset = Vector2(0, boton.custom_minimum_size.y / 2.0)
 		boton.mouse_entered.connect(_actualizar_resaltado.bind(boton))
@@ -50,6 +51,7 @@ func _ready() -> void:
 		_actualizar_resaltado(boton)
 
 	jugar_button.pressed.connect(_start_game)
+	trailer_button.pressed.connect(_start_trailer)
 	opciones_button.pressed.connect(func(): _abrir_overlay(overlay_opciones))
 	controles_button.pressed.connect(func(): _abrir_overlay(overlay_controles))
 	creditos_button.pressed.connect(func(): _abrir_overlay(overlay_creditos))
@@ -97,6 +99,10 @@ func _start_game() -> void:
 	get_tree().change_scene_to_file("res://scenes/loading_screen.tscn")
 
 
+func _start_trailer() -> void:
+	get_tree().change_scene_to_file("res://scenes/trailer.tscn")
+
+
 func _abrir_overlay(overlay: Panel) -> void:
 	_cerrar_overlays()
 	overlay.visible = true
@@ -120,5 +126,6 @@ func _construir_opciones() -> void:
 	contenido_opciones.offset_bottom = 270.0
 	contenido_opciones.add_theme_constant_override("separation", 12)
 	var panel := OptionsPanel.new()
+	panel.mostrar_opcion_trailer = true
 	contenido_opciones.add_child(panel)
 	contenido_opciones.move_child(panel, 1)

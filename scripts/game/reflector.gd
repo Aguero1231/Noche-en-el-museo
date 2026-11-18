@@ -16,9 +16,6 @@ const RUMBOS := ["NORTE", "ESTE", "SUR", "OESTE"]
 
 var _foco: SpotLight3D
 var _t := 0.0
-var _hecho := false
-
-
 func _ready() -> void:
 	var metal := StandardMaterial3D.new()
 	metal.albedo_color = Color(0.16, 0.16, 0.18)

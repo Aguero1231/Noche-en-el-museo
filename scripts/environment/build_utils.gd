@@ -19,11 +19,11 @@ func tex(file: String) -> Texture2D:
 # ---------------------------------------------------------------- materiales
 
 ## Material liso (nuevo cada vez: seguro para objetos con contorno / emision propia).
-func mat(color: Color, rough: float = 0.8, metal: float = 0.0, emis: Color = Color.BLACK, emis_e: float = 1.0) -> StandardMaterial3D:
+func mat(color: Color, rough: float = 0.8, metallic_amount: float = 0.0, emis: Color = Color.BLACK, emis_e: float = 1.0) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
 	m.albedo_color = color
 	m.roughness = rough
-	m.metallic = metal
+	m.metallic = metallic_amount
 	if emis != Color.BLACK:
 		m.emission_enabled = true
 		m.emission = emis

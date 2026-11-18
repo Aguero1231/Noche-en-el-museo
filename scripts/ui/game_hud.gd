@@ -27,6 +27,9 @@ var _reloj: Label
 var _peligro: ColorRect
 var _espejo: Control
 var _espejo_vista: TextureRect
+var _elementos_hud: Array[CanvasItem] = []
+var _filtro_trailer: ColorRect
+var _modo_trailer := false
 
 
 func _ready() -> void:
@@ -47,6 +50,8 @@ func set_prompt(texto: String) -> void:
 
 ## Mensaje temporal abajo al centro (se desvanece solo).
 func show_message(texto: String) -> void:
+	if _modo_trailer:
+		return
 	_mensaje.text = texto
 	_mensaje.modulate.a = 1.0
 	if _tween and _tween.is_valid():
@@ -98,8 +103,28 @@ func set_reloj(texto: String) -> void:
 
 ## 0.0 - 1.0: borde rojo que late cuando una estatua se acerca.
 func set_peligro(v: float) -> void:
+	if _modo_trailer:
+		_peligro.visible = false
+		return
 	_peligro.color.a = clampf(v, 0.0, 1.0) * 0.55
 	_peligro.visible = v > 0.02
+
+
+## Oculta los elementos de juego para capturar escenas; los subtítulos de radio se conservan.
+func set_modo_trailer(activo: bool) -> void:
+	_modo_trailer = activo
+	for elemento in _elementos_hud:
+		elemento.visible = not activo
+	_espejo.visible = false
+	if activo:
+		_peligro.visible = false
+	_filtro_trailer.visible = activo
+	_radio_titulo.visible = not activo
+	_radio.add_theme_font_size_override("font_size", 20 if activo else 17)
+	_radio_contenedor.offset_left = -520 if activo else -460
+	_radio_contenedor.offset_right = 520 if activo else 460
+	_radio_contenedor.offset_top = -150 if activo else -210
+	_radio_contenedor.offset_bottom = -74 if activo else -126
 
 
 ## Espejo de inspeccion: muestra la vista de atras (volteada como un espejo de verdad).
@@ -230,6 +255,35 @@ func _construir() -> void:
 	_peligro.visible = false
 	raiz.add_child(_peligro)
 
+	# Filtro de captura: gradación fría, viñeta suave y grano fino.
+	_filtro_trailer = ColorRect.new()
+	_filtro_trailer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_filtro_trailer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_filtro_trailer.visible = false
+	var shader_trailer := Shader.new()
+	shader_trailer.code = """
+	shader_type canvas_item;
+	uniform sampler2D screen_texture : hint_screen_texture, filter_linear;
+	void fragment() {
+		vec2 uv = SCREEN_UV;
+		vec3 color = texture(screen_texture, uv).rgb;
+		float luminance = dot(color, vec3(0.299, 0.587, 0.114));
+		vec3 tono_frio = color * vec3(0.84, 0.91, 1.08);
+		tono_frio += vec3(0.035, 0.018, 0.0) * smoothstep(0.28, 0.82, luminance);
+		color = mix(color, tono_frio, 0.34);
+		vec2 centro = uv - vec2(0.5);
+		float vignette = smoothstep(0.28, 0.78, length(centro * vec2(1.0, 0.92)));
+		float ruido = fract(sin(dot(floor(FRAGCOORD.xy + vec2(TIME * 37.0)), vec2(12.9898, 78.233))) * 43758.5453) - 0.5;
+		color *= 1.0 - vignette * 0.34;
+		color += ruido * 0.018;
+		COLOR = vec4(color, 1.0);
+	}
+	"""
+	var material_trailer := ShaderMaterial.new()
+	material_trailer.shader = shader_trailer
+	_filtro_trailer.material = material_trailer
+	raiz.add_child(_filtro_trailer)
+
 	# Marco auxiliar para tercera persona; en primera persona el espejo se sostiene en la mano.
 	_espejo = Control.new()
 	_espejo.set_anchors_preset(Control.PRESET_CENTER_TOP)
@@ -299,6 +353,7 @@ func _construir() -> void:
 		_espejo.add_child(linea)
 	_espejo.visible = false
 	raiz.add_child(_espejo)
+	_elementos_hud.append(_espejo)
 
 	# Texto de interaccion, debajo del centro de la pantalla
 	_prompt = _label("", raiz, 20)
@@ -310,6 +365,7 @@ func _construir() -> void:
 	_prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_prompt.add_theme_color_override("font_color", Color(0.55, 1.0, 0.6))
 	_prompt.hide()
+	_elementos_hud.append(_prompt)
 
 	# Mensajes
 	_mensaje = _label("", raiz, 18)
@@ -322,6 +378,7 @@ func _construir() -> void:
 	_mensaje.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_mensaje.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_mensaje.modulate.a = 0.0
+	_elementos_hud.append(_mensaje)
 
 	# Medidores refinados: cada recurso tiene nombre, porcentaje y una barra delgada.
 	var panel_recursos := PanelContainer.new()
@@ -344,6 +401,7 @@ func _construir() -> void:
 	_valor_energia = energia["valor"] as Label
 	_relleno_energia = energia["relleno"] as StyleBoxFlat
 	raiz.add_child(panel_recursos)
+	_elementos_hud.append(panel_recursos)
 
 	# Objetivo compacto con progreso secundario.
 	var tarjeta_objetivo := PanelContainer.new()
@@ -365,6 +423,7 @@ func _construir() -> void:
 	_progreso = _label("", contenido_objetivo, 11)
 	_progreso.add_theme_color_override("font_color", Color(0.7, 0.81, 0.79))
 	raiz.add_child(tarjeta_objetivo)
+	_elementos_hud.append(tarjeta_objetivo)
 
 	# Subtítulo de radio: voz y texto sin panel que tape la escena.
 	_radio_contenedor = Control.new()
@@ -398,6 +457,7 @@ func _construir() -> void:
 	_reloj.offset_top = 18
 	_reloj.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_reloj.add_theme_color_override("font_color", Color(1.0, 0.35, 0.3))
+	_elementos_hud.append(_reloj)
 	var fecha := _label("VIE 13 OCT 2026", raiz, 13)
 	fecha.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	fecha.offset_left = -220
@@ -405,6 +465,7 @@ func _construir() -> void:
 	fecha.offset_top = 50
 	fecha.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	fecha.modulate.a = 0.75
+	_elementos_hud.append(fecha)
 
 	# Los controles se muestran al entrar y se desvanecen para despejar la vista.
 	_ayuda = _label("WASD MOVER · SHIFT CORRER · C VISTA · V ESPEJO · E USAR · F LINTERNA · R SEÑUELO", raiz, 12)
@@ -415,3 +476,4 @@ func _construir() -> void:
 	_ayuda.offset_bottom = -16
 	_ayuda.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_ayuda.modulate.a = 0.58
+	_elementos_hud.append(_ayuda)

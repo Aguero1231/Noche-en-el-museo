@@ -16,6 +16,20 @@ func _ready() -> void:
 
 
 func mostrar(causa: String) -> void:
+	_titulo.text = "TE ATRAPARON"
+	_titulo.add_theme_color_override("font_color", Color(0.9, 0.12, 0.1))
+	_fondo.color = Color(0.25, 0.0, 0.0, 0.0)
+	_mostrar_mensaje(causa)
+
+
+func mostrar_victoria() -> void:
+	_titulo.text = "SELLO RESTAURADO"
+	_titulo.add_theme_color_override("font_color", Color(0.88, 0.69, 0.3))
+	_fondo.color = Color(0.01, 0.035, 0.055, 0.0)
+	_mostrar_mensaje("Las cuatro piezas vuelven a unirse. Anubis queda inmóvil y la primera luz del amanecer entra en el museo.")
+
+
+func _mostrar_mensaje(causa: String) -> void:
 	_causa.text = causa
 	visible = true
 	_fondo.color.a = 0.0

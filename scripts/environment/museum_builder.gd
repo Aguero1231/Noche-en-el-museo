@@ -18,6 +18,7 @@ const RoomLobby = preload("res://scripts/environment/room_lobby.gd")
 const GameState = preload("res://scripts/game/game_state.gd")
 const Interactables = preload("res://scripts/game/interactables.gd")
 const EstatuaEnemiga = preload("res://scripts/enemies/estatua_enemiga.gd")
+const AnubisBoss = preload("res://scripts/enemies/anubis_boss.gd")
 const Modelos = preload("res://scripts/environment/estatua_modelos.gd")
 const BuildUtils = preload("res://scripts/environment/build_utils.gd")
 const DOOR_HALF := RoomLobby.ARCH_HALF   # medio ancho del arco
@@ -29,6 +30,10 @@ var estado: GameState
 var environment: Environment
 var _altar_slots: Array[MeshInstance3D] = []
 var _altar_luz: OmniLight3D
+var _anubis_estatua: Node3D
+var _jefe_anubis: AnubisBoss
+var _cierre_sala: Node3D
+var _hojas_cierre: Array[Node3D] = []
 
 # Luces de antorcha que parpadean: [{light, base, phase, speed}]
 var _flicker: Array = []
@@ -665,12 +670,12 @@ func _build_centerpiece() -> void:
 	_box(self, Vector3(0, 0.45, -14.2), Vector3(4.4, 0.9, 2.4), stone)
 	_box(self, Vector3(0, 0.95, -14.2), Vector3(4.6, 0.12, 2.6), gold)
 	# Estatua de Anubis
-	var st := Node3D.new()
-	st.name = "AnubisGrande"
-	st.position = Vector3(0, 1.0, -14.2)
-	st.scale = Vector3(1.05, 1.05, 1.05)
-	add_child(st)
-	_build_anubis(st)
+	_anubis_estatua = Node3D.new()
+	_anubis_estatua.name = "AnubisGrande"
+	_anubis_estatua.position = Vector3(0, 1.0, -14.2)
+	_anubis_estatua.scale = Vector3(1.05, 1.05, 1.05)
+	add_child(_anubis_estatua)
+	_build_anubis(_anubis_estatua)
 	# Luces desde el suelo que la iluminan
 	_spot(self, Vector3(-1.9, 0.15, -12.3), Vector3(55, -8, 0), Color(1.0, 0.68, 0.34), 2.8, 9.0, 38.0)
 	_spot(self, Vector3(1.9, 0.15, -12.3), Vector3(55, 8, 0), Color(1.0, 0.68, 0.34), 2.8, 9.0, 38.0)
@@ -757,6 +762,33 @@ func _build_enemies() -> void:
 	_make_enemy(Vector3(0, 1.3, -10), "ESTATUA")
 	_make_enemy(Vector3(-6, 1.3, 2), "ARMADURA")
 	_make_enemy(Vector3(7, 1.3, 10), "MOMIA")
+	_crear_jefe_anubis()
+
+
+func _crear_jefe_anubis() -> void:
+	_jefe_anubis = AnubisBoss.new()
+	_jefe_anubis.name = "AnubisDespierto"
+	_jefe_anubis.tipo = "ANUBIS"
+	_jefe_anubis.velocidad = 1.25
+	_jefe_anubis.distancia_aviso = 11.0
+	_jefe_anubis.region = Rect2(-14.5, -14.5, 29.0, 29.0)
+	_jefe_anubis.position = Vector3(0, 0, -11.7)
+	_jefe_anubis.visible = false
+	_jefe_anubis.activa = false
+	_jefe_anubis.set_meta("enemy_type", "ANUBIS")
+	var cuerpo := CollisionShape3D.new()
+	var forma := CapsuleShape3D.new()
+	forma.radius = 0.72
+	forma.height = 2.9
+	cuerpo.shape = forma
+	cuerpo.position.y = 1.45
+	_jefe_anubis.add_child(cuerpo)
+	add_child(_jefe_anubis)
+	var visual := Node3D.new()
+	visual.name = "Visual"
+	visual.scale = Vector3(1.22, 1.22, 1.22)
+	_jefe_anubis.add_child(visual)
+	_build_anubis(visual, visual)
 
 
 func _make_enemy(pos: Vector3, label: String) -> void:
@@ -798,7 +830,7 @@ func _make_enemy(pos: Vector3, label: String) -> void:
 
 
 func _build_mummy(p: Node3D) -> void:
-	var wrap := _mat(Color(0.48, 0.39, 0.27), 1.0)
+	var vendas := _mat(Color(0.48, 0.39, 0.27), 1.0)
 	var wrap2 := _mat(Color(0.28, 0.22, 0.16), 1.0)
 	var bronze := _mat(Color(0.25, 0.18, 0.095), 0.72, 0.58)
 	var gold := _gold()
@@ -806,23 +838,23 @@ func _build_mummy(p: Node3D) -> void:
 	var m := Node3D.new()
 	m.rotation_degrees = Vector3(-11, 0, 0)
 	p.add_child(m)
-	_capsule(m, Vector3(0, 1.0, 0), 0.29, 1.55, wrap)
+	_capsule(m, Vector3(0, 1.0, 0), 0.29, 1.55, vendas)
 	# Piernas desiguales y encorvadas.
 	for s in [-1.0, 1.0]:
 		_capsule(m, Vector3(s * 0.15, 0.36, 0.015), 0.13, 0.72, wrap2, Vector3(0, 0, s * 8))
-		_capsule(m, Vector3(s * 0.16, 0.12, 0.13), 0.095, 0.28, wrap, Vector3(72, 0, 0))
-		_torus(m, Vector3(s * 0.15, 0.42, 0.05), 0.105, 0.135, wrap, Vector3(8, 0, s * 8))
+		_capsule(m, Vector3(s * 0.16, 0.12, 0.13), 0.095, 0.28, vendas, Vector3(72, 0, 0))
+		_torus(m, Vector3(s * 0.15, 0.42, 0.05), 0.105, 0.135, vendas, Vector3(8, 0, s * 8))
 	# Vendas cruzadas sobre el torso, con pliegues y manchas oscuras.
 	for i in range(12):
 		var y := 0.28 + i * 0.125
 		var r := 0.29 if i < 8 else 0.25
-		var banda := _torus(m, Vector3(0, y, 0), r - 0.025, r + 0.022, wrap2 if i % 3 == 0 else wrap, Vector3(randf_range(-12, 12), randf_range(-8, 8), randf_range(-10, 10)))
+		var banda := _torus(m, Vector3(0, y, 0), r - 0.025, r + 0.022, wrap2 if i % 3 == 0 else vendas, Vector3(randf_range(-12, 12), randf_range(-8, 8), randf_range(-10, 10)))
 		banda.scale = Vector3(1.0 + 0.06 * sin(float(i)), 1.0, 0.88)
 	# Brazos largos hacia delante y dedos huesudos bajo las vendas.
 	for s in [-1.0, 1.0]:
-		_capsule(m, Vector3(s * 0.31, 1.43, 0.08), 0.105, 0.55, wrap, Vector3(-38, 0, s * 18))
+		_capsule(m, Vector3(s * 0.31, 1.43, 0.08), 0.105, 0.55, vendas, Vector3(-38, 0, s * 18))
 		_capsule(m, Vector3(s * 0.43, 1.16, 0.34), 0.09, 0.55, wrap2, Vector3(-64, 0, s * 12))
-		_sphere(m, Vector3(s * 0.44, 0.93, 0.57), 0.105, wrap, Vector3(0.85, 0.72, 1.25))
+		_sphere(m, Vector3(s * 0.44, 0.93, 0.57), 0.105, vendas, Vector3(0.85, 0.72, 1.25))
 		for k in 4:
 			_capsule(m, Vector3(s * (0.44 + (k - 1.5) * 0.035), 0.86, 0.66), 0.022, 0.16, wrap2, Vector3(-20, 0, (k - 1.5) * 8))
 		for j in 3:
@@ -835,10 +867,10 @@ func _build_mummy(p: Node3D) -> void:
 	for s in [-1.0, 1.0]:
 		_sphere(m, Vector3(s * 0.073, 1.91, 0.248), 0.025, eye)
 		_sphere(m, Vector3(s * 0.15, 1.83, 0.17), 0.045, gold, Vector3(0.35, 1.0, 0.45))
-		_box(m, Vector3(s * 0.19, 0.72, 0.20), Vector3(0.07, 0.46, 0.025), wrap, Vector3(0, 0, s * 11))
+		_box(m, Vector3(s * 0.19, 0.72, 0.20), Vector3(0.07, 0.46, 0.025), vendas, Vector3(0, 0, s * 11))
 		_torus(m, Vector3(s * 0.31, 1.44, 0.08), 0.095, 0.12, wrap2, Vector3(-38, 0, s * 18))
 	for s in [-1.0, 1.0]:
-		_torus(m, Vector3(s * 0.085, 1.97, 0.06), 0.13, 0.16, wrap, Vector3(randf_range(-9, 9), 0, randf_range(-9, 9)))
+		_torus(m, Vector3(s * 0.085, 1.97, 0.06), 0.13, 0.16, vendas, Vector3(randf_range(-9, 9), 0, randf_range(-9, 9)))
 	p.set_meta("ojos", [eye])
 
 
@@ -931,6 +963,30 @@ func _build_sealing_altar() -> void:
 
 
 func _usar_altar() -> void:
+	if estado.flag("boss_anubis_activo"):
+		if estado.cantidad("fragmento") < GameState.FRAGMENTOS_TOTALES:
+			estado.mensaje.emit("El sello no puede cerrarse todavía. Recupera los cuatro fragmentos dispersos por la sala.")
+			return
+		estado.quitar("fragmento", GameState.FRAGMENTOS_TOTALES)
+		estado.dar("fragmento_colocado", GameState.FRAGMENTOS_TOTALES)
+		estado.poner_flag("boss_anubis_activo", false)
+		estado.poner_flag("boss_anubis_derrotado")
+		for slot in _altar_slots:
+			var material := _mat(Color(0.05, 0.3, 0.28), 0.4)
+			material.emission_enabled = true
+			material.emission = Color(0.2, 1.0, 0.85)
+			material.emission_energy_multiplier = 2.5
+			slot.material_override = material
+		_altar_luz.light_energy = 3.0
+		_jefe_anubis.cerrar_encuentro()
+		_anubis_estatua.visible = true
+		_abrir_salida_boss()
+		estado.mensaje.emit("El amuleto se recompone. Anubis vuelve a ser piedra: sobreviviste al turno.")
+		estado.radio_una_vez("anubis_sellado", "ROBERTO (radio): «Alex... las cámaras volvieron. La estatua está inmóvil. Aguantaste hasta el amanecer.»")
+		return
+	if estado.flag("boss_anubis_derrotado"):
+		estado.mensaje.emit("El sello está cerrado y Anubis ha quedado inmóvil.")
+		return
 	var colocados := estado.cantidad("fragmento_colocado")
 	if estado.cantidad("fragmento") > 0:
 		estado.quitar("fragmento")
@@ -948,13 +1004,15 @@ func _usar_altar() -> void:
 		if n == 1:
 			_aparecer_tarjeta_azul()
 			estado.radio_una_vez("altar", "ROBERTO (radio): «Alex, las cámaras de la sala acaban de parpadear todas a la vez. ¿Qué hiciste? Tranquilo... toma lo que salga del pedestal.»")
-		elif n == 3:
-			# Recompensa del Nivel 2: tarjeta roja y bateria de linterna ampliada
-			_aparecer_tarjeta_roja()
+		elif n == 2:
+			# Recompensa por completar los fragmentos de los pisos 1 y 2.
 			estado.poner_flag("bateria_ampliada")
 			estado.recargar_bateria.emit(100.0)
-			estado.mensaje.emit("Recompensa del Nivel 2: batería de linterna ampliada y tarjeta Nivel 2 (roja).")
-			estado.radio_una_vez("altar3", "ROBERTO (radio): «Tres de cuatro... Alex, la linterna se ve más fuerte desde aquí. Y esa tarjeta roja... abre algo en el piso de arriba.»")
+			estado.mensaje.emit("Segundo fragmento colocado (2/4). La batería de la linterna se ha ampliado.")
+			estado.radio_una_vez("altar2", "ROBERTO (radio): «Dos fragmentos... La linterna aguanta más carga ahora. La tarjeta roja debe seguir en la Armería; busca la cámara del norte.»")
+		elif n == GameState.FRAGMENTOS_TOTALES:
+			estado.poner_flag("sello_completo")
+			_iniciar_jefe_anubis()
 	elif colocados > 0:
 		var altar := get_node("PedestalSellado") as Node3D
 		if altar.has_node("TarjetaAzul") or altar.has_node("TarjetaRoja"):
@@ -963,6 +1021,89 @@ func _usar_altar() -> void:
 			estado.mensaje.emit("El pedestal espera los fragmentos restantes (%d/%d)." % [colocados, GameState.FRAGMENTOS_TOTALES])
 	else:
 		estado.mensaje.emit("Un pedestal con cuatro huecos de forma irregular. Alex: «Aquí van los fragmentos del amuleto.»")
+
+
+func _iniciar_jefe_anubis() -> void:
+	estado.poner_flag("boss_anubis_activo")
+	estado.quitar("fragmento_colocado", GameState.FRAGMENTOS_TOTALES)
+	for slot in _altar_slots:
+		slot.material_override = _mat(Color(0.05, 0.08, 0.09), 0.4)
+	_altar_luz.light_energy = 0.0
+	_anubis_estatua.visible = false
+	_jefe_anubis.activar_encuentro()
+	_cerrar_salida_boss()
+	_dispersar_fragmentos()
+	Sfx.tocar("golpe")
+	estado.mensaje.emit("¡Anubis despierta! La salida se selló y el amuleto se dispersó. Recupera las cuatro piezas.")
+	estado.radio_una_vez("boss_despierta", "ROBERTO (radio): «¡Alex, el Anubis se movió! La salida quedó sellada. Recupera los cuatro fragmentos y vuelve al pedestal.»")
+
+
+func _dispersar_fragmentos() -> void:
+	var posiciones := [Vector3(-11.0, 0.22, -9.0), Vector3(11.0, 0.22, -9.0), Vector3(-11.0, 0.22, 9.0), Vector3(11.0, 0.22, 9.0)]
+	var tonos := [Color(0.18, 0.75, 1.0), Color(1.0, 0.42, 0.12), Color(0.3, 1.0, 0.54), Color(0.82, 0.48, 1.0)]
+	for i in GameState.FRAGMENTOS_TOTALES:
+		var pos: Vector3 = posiciones[i]
+		var fragmento := Node3D.new()
+		fragmento.name = "FragmentoDisperso%d" % (i + 1)
+		fragmento.position = pos
+		add_child(fragmento)
+		var tono: Color = tonos[i]
+		var pieza := _mat(tono.darkened(0.55), 0.3, 0.45)
+		pieza.emission_enabled = true
+		pieza.emission = tono
+		pieza.emission_energy_multiplier = 1.7
+		_box(fragmento, Vector3.ZERO, Vector3(0.32, 0.09, 0.20), pieza, Vector3(0, 12.0 * i, 18.0 - i * 9.0))
+		_box(fragmento, Vector3(0.04, 0.045, 0.01), Vector3(0.08, 0.025, 0.24), _gold(), Vector3(0, -20.0 * i, -12.0))
+		if registry:
+			registry.registrar(fragmento, self, "recoger", "Recuperar fragmento del amuleto", 3.0, Vector3(0, 0.25, 0), {"item": "fragmento", "mensaje": "Recuperaste una de las piezas dispersas. Revisa el objetivo para ver cuántas faltan."}, fragmento)
+
+
+func _cerrar_salida_boss() -> void:
+	if not is_instance_valid(_cierre_sala):
+		_cierre_sala = Node3D.new()
+		_cierre_sala.name = "PuertaSelladaAnubis"
+		_cierre_sala.position = Vector3(0, 0, 16.0)
+		add_child(_cierre_sala)
+		_hojas_cierre.clear()
+		var piedra := _mat(Color(0.17, 0.16, 0.18), 0.7, 0.3)
+		for lado in [-1.0, 1.0]:
+			var hoja := Node3D.new()
+			hoja.name = "HojaSellada"
+			hoja.position = Vector3(float(lado) * 5.0, 0, 0)
+			_cierre_sala.add_child(hoja)
+			_box(hoja, Vector3(0, 2.1, 0), Vector3(3.35, 4.2, 0.48), piedra)
+			_box(hoja, Vector3(0, 2.1, -0.26), Vector3(0.10, 4.0, 0.08), _gold())
+			var body := StaticBody3D.new()
+			body.collision_layer = 1
+			body.collision_mask = 0
+			var shape := CollisionShape3D.new()
+			var box := BoxShape3D.new()
+			box.size = Vector3(3.35, 4.2, 0.48)
+			shape.shape = box
+			shape.position.y = 2.1
+			body.add_child(shape)
+			hoja.add_child(body)
+			_hojas_cierre.append(hoja)
+	for i in _hojas_cierre.size():
+		var destino := -1.65 if i == 0 else 1.65
+		var tween := create_tween()
+		tween.tween_property(_hojas_cierre[i], "position:x", destino, 0.75).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	Sfx.tocar("puerta")
+
+
+func _abrir_salida_boss() -> void:
+	if not is_instance_valid(_cierre_sala):
+		return
+	for i in _hojas_cierre.size():
+		var destino := -5.0 if i == 0 else 5.0
+		var tween := create_tween()
+		tween.tween_property(_hojas_cierre[i], "position:x", destino, 0.8).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	get_tree().create_timer(0.9).timeout.connect(func():
+		if is_instance_valid(_cierre_sala):
+			_cierre_sala.queue_free()
+		_cierre_sala = null
+		_hojas_cierre.clear()
+	)
 
 
 func _aparecer_tarjeta_azul() -> void:
@@ -980,23 +1121,6 @@ func _aparecer_tarjeta_azul() -> void:
 	_box(tarjeta, Vector3(0.035, 0.005, 0), Vector3(0.04, 0.002, 0.04), _mat(Color(0.9, 0.9, 1.0), 0.4))
 	if registry:
 		registry.registrar(tarjeta, self, "recoger", "Tomar tarjeta de acceso Nivel 1", 4.0, Vector3.ZERO, {"item": "tarjeta_azul", "mensaje": "Tarjeta de acceso Nivel 1 (azul). Abre la escalera de servicio."}, tarjeta)
-
-
-func _aparecer_tarjeta_roja() -> void:
-	var altar := get_node("PedestalSellado") as Node3D
-	var tarjeta := Node3D.new()
-	tarjeta.name = "TarjetaRoja"
-	tarjeta.position = Vector3(0, 1.075, -0.30)
-	tarjeta.rotation_degrees.y = -15.0
-	altar.add_child(tarjeta)
-	var rojo := _mat(Color(0.8, 0.1, 0.1), 0.3, 0.6)
-	rojo.emission_enabled = true
-	rojo.emission = Color(1.0, 0.2, 0.2)
-	rojo.emission_energy_multiplier = 1.0
-	_box(tarjeta, Vector3.ZERO, Vector3(0.16, 0.006, 0.1), rojo)
-	_box(tarjeta, Vector3(0.035, 0.005, 0), Vector3(0.04, 0.002, 0.04), _mat(Color(0.95, 0.9, 0.9), 0.4))
-	if registry:
-		registry.registrar(tarjeta, self, "recoger", "Tomar tarjeta de acceso Nivel 2", 4.0, Vector3.ZERO, {"item": "tarjeta_roja", "mensaje": "Tarjeta de acceso Nivel 2 (roja). Abre la escalera al piso 3."}, tarjeta)
 
 
 func _build_hall_notes() -> void:

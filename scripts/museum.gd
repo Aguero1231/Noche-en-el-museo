@@ -9,6 +9,8 @@ const RoomRestoration = preload("res://scripts/environment/room_restoration.gd")
 const RoomStairs = preload("res://scripts/environment/room_stairs.gd")
 const RoomGaleria = preload("res://scripts/environment/room_galeria.gd")
 const RoomArmeria = preload("res://scripts/environment/room_armeria.gd")
+const RoomPaleontologia = preload("res://scripts/environment/room_paleontologia.gd")
+const RoomCripta = preload("res://scripts/environment/room_cripta.gd")
 const CCTV = preload("res://scripts/environment/cctv_system.gd")
 const GameState = preload("res://scripts/game/game_state.gd")
 const Interactables = preload("res://scripts/game/interactables.gd")
@@ -21,6 +23,7 @@ const Guardia = preload("res://scripts/player/guardia.gd")
 const ZonaActivacion = preload("res://scripts/game/zona_activacion.gd")
 const ObjetoInteractivo = preload("res://scripts/game/objeto_interactivo.gd")
 const EstatuaEnemiga = preload("res://scripts/enemies/estatua_enemiga.gd")
+const AnubisBoss = preload("res://scripts/enemies/anubis_boss.gd")
 const GameOver = preload("res://scripts/ui/game_over.gd")
 
 # --- Ajustes de camara (tercera persona). Las velocidades estan en el Inspector del nodo Guardia. ---
@@ -78,6 +81,8 @@ var restoration: RoomRestoration
 var stairs: RoomStairs
 var galeria: RoomGaleria
 var armeria: RoomArmeria
+var paleontologia: RoomPaleontologia
+var cripta: RoomCripta
 var hud: GameHud
 var note_viewer: NoteViewer
 var code_lock: CodeLock
@@ -128,6 +133,7 @@ func _ready() -> void:
 	note_viewer = $VisorDeNotas as NoteViewer
 	code_lock = $Candado as CodeLock
 	game_over_ui = $GameOver as GameOver
+	hud.set_modo_trailer(Settings.trailer_mode)
 
 	_build_world()
 	_build_player()
@@ -151,6 +157,9 @@ func _exit_tree() -> void:
 
 ## Pasa el estado, el registro de interactivos y las camaras a un cuarto y lo construye.
 func _preparar_sala(sala: Node3D) -> Node3D:
+	if not sala.has_method("build"):
+		push_error("La sala '%s' no tiene un script con build()." % sala.name)
+		return sala
 	sala.set("estado", estado)
 	sala.set("registry", registry)
 	sala.set("cctv", cctv)
@@ -177,6 +186,36 @@ func _build_world() -> void:
 	stairs = _preparar_sala($Mundo/EscaleraDeServicio) as RoomStairs
 	galeria = _preparar_sala($Mundo/GaleriaMedieval) as RoomGaleria
 	armeria = _preparar_sala($Mundo/Armeria) as RoomArmeria
+	# Piso 3: ocupa la misma planta que la Galería, nueve metros arriba.
+	paleontologia = RoomPaleontologia.new()
+	paleontologia.name = "PabellonPaleontologia"
+	paleontologia.position = Vector3(0, 18, 0)
+	$Mundo.add_child(paleontologia)
+	_preparar_sala(paleontologia)
+	var zona_paleontologia := ZonaActivacion.new()
+	zona_paleontologia.name = "ZonaPaleontologia"
+	zona_paleontologia.add_child(CollisionShape3D.new())
+	zona_paleontologia.position = Vector3(0, 19.5, 17.0)
+	zona_paleontologia.id_zona = "paleontologia"
+	zona_paleontologia.mensaje_radio = "ROBERTO (radio): «Alex, la cámara térmica marca algo grande en Paleontología... ¿no dijiste que el fósil estaba inmóvil?»"
+	zona_paleontologia.tamano = Vector3(17.0, 3.0, 25.0)
+	zona_paleontologia.add_to_group("zonas")
+	$Zonas.add_child(zona_paleontologia)
+	# Piso 4: debajo del museo y conectado por la escalera exterior del pabellón.
+	cripta = RoomCripta.new()
+	cripta.name = "CriptaSotano"
+	cripta.position = Vector3(0, -9, 14)
+	$Mundo.add_child(cripta)
+	_preparar_sala(cripta)
+	var zona_cripta := ZonaActivacion.new()
+	zona_cripta.name = "ZonaCripta"
+	zona_cripta.add_child(CollisionShape3D.new())
+	zona_cripta.position = Vector3(0, -7.5, 42.0)
+	zona_cripta.id_zona = "cripta"
+	zona_cripta.mensaje_radio = "ROBERTO (radio): «Alex, perdí la señal bajo el museo. Hay tres firmas térmicas acercándose. Busca el último fragmento y vuelve por la escalera.»"
+	zona_cripta.tamano = Vector3(18.0, 3.0, 5.5)
+	zona_cripta.add_to_group("zonas")
+	$Zonas.add_child(zona_cripta)
 
 	# Oficina de seguridad (inicio del juego): pegada a la pared este del vestibulo, girada 90 grados
 	office = _preparar_sala($Mundo/OficinaSeguridad) as OfficeBuilder
@@ -208,7 +247,7 @@ func _brazos_primera_persona() -> void:
 	brazo_derecho_vista = _crear_brazo_vista(1.0, manga, puño, piel, parche)
 	brazo_izquierdo_vista.visible = false
 	brazo_derecho_vista.visible = false
-	_crear_espejo_vista(piel, parche)
+	_crear_espejo_vista(parche)
 	_crear_walkie_vista()
 
 func _flat_vista(color: Color) -> StandardMaterial3D:
@@ -287,7 +326,7 @@ func _crear_brazo_vista(lado: float, manga: Material, puño: Material, piel: Mat
 	_aislar_modelo_vista(raiz)
 	return raiz
 
-func _crear_espejo_vista(piel: Material, oro: Material) -> void:
+func _crear_espejo_vista(oro: Material) -> void:
 	# La empuñadura y el marco forman un pequeño espejo sostenido desde la mano izquierda.
 	espejo_modelo_vista = Node3D.new()
 	espejo_modelo_vista.name = "EspejoEnManoIzquierda"
@@ -596,6 +635,10 @@ func _connect_escena() -> void:
 		e.se_acerca.connect(_on_enemigo_se_acerca)
 		e.congelada.connect(_on_enemigo_congelada)
 		e.sonido_paso.connect(_on_enemigo_paso)
+		if e is AnubisBoss:
+			e.golpe_por_varilla.connect(_on_anubis_varilla)
+			e.inicio_descarga.connect(_on_anubis_descarga)
+			e.derrotado.connect(_on_anubis_derrotado)
 		n_enem += 1
 	print("[JUEGO] Escena lista: jugador '%s', %d zonas de activacion, %d interruptores, %d estatuas." % [player.name, n_zonas, n_obj, n_enem])
 
@@ -616,6 +659,14 @@ func _on_zona_activada(id_zona: String, mensaje: String) -> void:
 			get_tree().create_timer(10.0).timeout.connect(_despertar.bind("wake_galeria", "armaduras_despiertan", "ROBERTO (radio): «¡Alex, las armaduras se mueven! Se oyen hasta por el walkie. Usa el reflector de cada una... y no corras de espaldas.»"))
 		"armeria":
 			get_tree().create_timer(8.0).timeout.connect(_despertar.bind("wake_armeria", "armeria_despierta", "ROBERTO (radio): «Dos armaduras en esos pasillos, Alex. Elige una ruta y fija a la de esa ruta con su reflector.»"))
+		"paleontologia":
+			estado.poner_flag("piso3_visitado")
+			hud.show_message("Nivel 3: Pabellón de Paleontología y Bóveda de Contención.")
+			get_tree().create_timer(8.0).timeout.connect(_despertar.bind("wake_paleontologia", "fosil_despierta", "ROBERTO (radio): «Alex, ese fósil ya no está en su vitrina. No le quites la vista... y busca cómo abrir la bóveda.»"))
+		"cripta":
+			estado.poner_flag("piso4_visitado")
+			hud.show_message("Nivel 4: Cripta del museo. Encuentra el cuarto fragmento.")
+			get_tree().create_timer(7.0).timeout.connect(_despertar.bind("wake_cripta", "momias_despiertan", "ROBERTO (radio): «¡Alex, las momias! Tres señales se están moviendo. No pierdas de vista la que viene por el pasillo.»"))
 
 # EVENTO: el jugador uso un interruptor de la escena -> prender / apagar las luces de ESA sala
 func _on_objeto_interactuado(nombre: String, encendido: bool, id_luces: String) -> void:
@@ -965,6 +1016,33 @@ func _on_enemigo_atrapo(e: Node3D) -> void:
 	registry.resaltar({})
 	game_over_ui.mostrar("Un %s te alcanzó mientras no lo mirabas." % String(e.get("tipo")).to_lower())
 
+
+func _on_anubis_descarga() -> void:
+	hud.show_message("Anubis levanta la lanza: ¡prepárate para esquivar!")
+
+
+func _on_anubis_varilla() -> void:
+	stamina = maxf(0.0, stamina - 24.0)
+	hud.set_energia(stamina)
+	hud.show_message("La varilla de Anubis te golpeó. Muévete antes de la siguiente descarga.")
+
+
+func _on_anubis_derrotado() -> void:
+	if game_over_activo:
+		return
+	game_over_activo = true
+	for nodo in get_tree().get_nodes_in_group("enemigos"):
+		var enemigo := nodo as EstatuaEnemiga
+		enemigo.activa = false
+		enemigo.velocity = Vector3.ZERO
+	get_tree().create_timer(1.35).timeout.connect(_mostrar_victoria)
+
+
+func _mostrar_victoria() -> void:
+	hud.set_prompt("")
+	registry.resaltar({})
+	game_over_ui.mostrar_victoria()
+
 ## Walkie-talkie como senuelo: lo dejas sonando unos pasos al frente y las armaduras van hacia el pitido
 ## en vez de ir por ti (sirve para alejarlas de una puerta). Enfriamiento de 25 s.
 func _lanzar_senuelo() -> void:
@@ -1179,8 +1257,8 @@ func _tamano_panel(titulo: String) -> Vector2:
 		base = Vector2(620, 600)
 	elif titulo == "CONTROLES":
 		base = Vector2(420, 540)
-	var visible := get_viewport().get_visible_rect().size
-	var limite := Vector2(maxf(1.0, visible.x - 40.0), maxf(1.0, visible.y - 40.0))
+	var tamano_visible := get_viewport().get_visible_rect().size
+	var limite := Vector2(maxf(1.0, tamano_visible.x - 40.0), maxf(1.0, tamano_visible.y - 40.0))
 	return Vector2(minf(base.x, limite.x), minf(base.y, limite.y))
 
 func _pause_button_style(primario: bool, iluminado: bool) -> StyleBoxFlat:

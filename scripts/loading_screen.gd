@@ -51,7 +51,8 @@ func _process(delta: float) -> void:
 		return
 	elapsed += delta
 
-	var status := ResourceLoader.load_threaded_get_status(target_path)
+	var progress: Array = []
+	var status := ResourceLoader.load_threaded_get_status(target_path, progress)
 	if status == ResourceLoader.THREAD_LOAD_FAILED or status == ResourceLoader.THREAD_LOAD_INVALID_RESOURCE:
 		push_error("Fallo al cargar: " + target_path)
 		finished = true
@@ -62,22 +63,42 @@ func _process(delta: float) -> void:
 
 	# La barra avanza con el tiempo. Mientras el nivel siga cargando se detiene
 	# en 90 %; cuando termina de cargar, puede llegar al 100 %.
-	var timed := 1.0
-	if MIN_TIME > 0.0:
-		timed = clampf(elapsed / MIN_TIME, 0.0, 1.0)
-	var goal := timed if loaded else minf(timed, WAIT_CAP)
-	shown = move_toward(shown, goal, delta * BAR_SPEED)
+	shown = 1.0 if loaded else (float(progress[0]) if not progress.is_empty() else 0.0)
 
 	bar.value = shown * 100.0
 	percent_label.text = "%d%%" % int(round(shown * 100.0))
 	loading_label.text = "CARGANDO NIVEL" + ".".repeat(int(elapsed * 2.5) % 4)
 
-	if shown >= 1.0 and loaded:
+	if loaded:
 		finished = true
 		_enter_level()
 
 
 func _enter_level() -> void:
-	await get_tree().create_timer(0.3).timeout
+	shown = 1.0
+	bar.value = 100.0
+	percent_label.text = "100%"
+	loading_label.text = "PREPARANDO LAS SALAS..."
 	var packed := ResourceLoader.load_threaded_get(target_path) as PackedScene
+	var cover := CanvasLayer.new()
+	cover.layer = 128
+	cover.set_script(load("res://scripts/ui/loading_cover.gd"))
+	var fondo := TextureRect.new()
+	fondo.set_anchors_preset(Control.PRESET_FULL_RECT)
+	fondo.texture = load("res://assets/loading/loading_screen.png") as Texture2D
+	fondo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	fondo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	cover.add_child(fondo)
+	var preparando := Label.new()
+	preparando.text = "PREPARANDO LAS SALAS..."
+	preparando.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	preparando.offset_left = 70.0
+	preparando.offset_top = -112.0
+	preparando.offset_right = 540.0
+	preparando.offset_bottom = -72.0
+	preparando.add_theme_color_override("font_color", Color(0.95, 0.75, 0.32))
+	preparando.add_theme_font_size_override("font_size", 24)
+	cover.add_child(preparando)
+	get_tree().root.add_child(cover)
+	await get_tree().process_frame
 	get_tree().change_scene_to_packed(packed)

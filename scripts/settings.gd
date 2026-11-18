@@ -19,6 +19,7 @@ var fov := 70.0
 var brightness := 1.0
 var show_fps := false
 var quality := 1
+var trailer_mode := false
 
 var _fps_layer: CanvasLayer
 var _fps_label: Label
@@ -62,6 +63,8 @@ func set_setting(key: String, value: Variant) -> void:
 			brightness = clampf(float(value), 0.5, 1.8)
 		"show_fps":
 			show_fps = bool(value)
+		"trailer_mode":
+			trailer_mode = bool(value)
 		"quality":
 			quality = clampi(int(value), 0, 2)
 		_:
@@ -70,7 +73,7 @@ func set_setting(key: String, value: Variant) -> void:
 	changed.emit(key)
 
 
-func reset_defaults() -> void:
+func reset_defaults(reset_trailer_mode: bool = true) -> void:
 	set_setting("fullscreen", false)
 	set_setting("vsync", true)
 	set_setting("volume", 1.0)
@@ -79,6 +82,8 @@ func reset_defaults() -> void:
 	set_setting("brightness", 1.0)
 	set_setting("show_fps", false)
 	set_setting("quality", 1)
+	if reset_trailer_mode:
+		set_setting("trailer_mode", false)
 	save_settings()
 
 
@@ -97,6 +102,7 @@ func save_settings() -> void:
 	cfg.set_value("settings", "brightness", brightness)
 	cfg.set_value("settings", "show_fps", show_fps)
 	cfg.set_value("settings", "quality", quality)
+	cfg.set_value("settings", "trailer_mode", trailer_mode)
 	cfg.save(PATH)
 
 
@@ -112,6 +118,7 @@ func load_settings() -> void:
 	brightness = clampf(float(cfg.get_value("settings", "brightness", brightness)), 0.5, 1.8)
 	show_fps = bool(cfg.get_value("settings", "show_fps", show_fps))
 	quality = clampi(int(cfg.get_value("settings", "quality", quality)), 0, 2)
+	trailer_mode = bool(cfg.get_value("settings", "trailer_mode", trailer_mode))
 
 
 func _apply(key: String) -> void:
@@ -126,7 +133,9 @@ func _apply(key: String) -> void:
 			AudioServer.set_bus_mute(bus, volume <= 0.001)
 			AudioServer.set_bus_volume_db(bus, linear_to_db(maxf(volume, 0.001)))
 		"show_fps":
-			_fps_layer.visible = show_fps
+			_fps_layer.visible = show_fps and not trailer_mode
+		"trailer_mode":
+			_fps_layer.visible = show_fps and not trailer_mode
 		"quality":
 			var vp := get_viewport()
 			vp.msaa_3d = Viewport.MSAA_2X if quality >= 2 else Viewport.MSAA_DISABLED
@@ -150,7 +159,8 @@ func _aplicar_pantalla_completa() -> void:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 		DisplayServer.window_set_size(WINDOWED_SIZE)
 		var screen := DisplayServer.screen_get_size()
-		DisplayServer.window_set_position((screen - WINDOWED_SIZE) / 2)
+		var margen := screen - WINDOWED_SIZE
+		DisplayServer.window_set_position(Vector2i(floori(float(margen.x) / 2.0), floori(float(margen.y) / 2.0)))
 
 
 func _build_fps_label() -> void:

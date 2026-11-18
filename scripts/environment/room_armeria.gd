@@ -1,7 +1,7 @@
 extends "res://scripts/environment/room_base.gd"
 
 ## ARMERIA (PISO 2): "Pasillos de Acero". Laberinto de pasillos estrechos (2.5 m) con armaduras
-## de la Orden del Acero. El FRAGMENTO 3 esta al fondo, en la camara del norte.
+## de la Orden del Acero. La tarjeta de acceso al piso 3 esta al fondo, en la camara del norte.
 ## Hay dos rutas (este y oeste); cada una tiene una armadura y un reflector con su panel: giralo hasta que
 ## la luz toque a la armadura para inmovilizarla para siempre y poder pasar.
 ## El nodo se coloca a y = 9; el mapa se lee desde MAPA (# = muro, . = pasillo).
@@ -61,7 +61,7 @@ func build() -> void:
 
 	_decorar_pasillos()
 	_luces()
-	_camara_del_fragmento()
+	_camara_del_acceso()
 	_rincon_de_pilas()
 	_ruta_este()
 	_ruta_oeste()
@@ -131,27 +131,24 @@ func _luces() -> void:
 		parpadear(l, 9.0 + k, k % 3 == 0)
 
 
-func _camara_del_fragmento() -> void:
-	# Camara norte (fila 1, columnas 1..5): FRAGMENTO 3 sobre un pedestal con jeroglificos
+func _camara_del_acceso() -> void:
+	# Camara norte (fila 1, columnas 1..5): tarjeta roja que abre el acceso al piso 3.
 	var c := _c(3, 1)
-	var p := u.node3d(self, "PedestalFragmento3", Vector3(c.x, 0, c.z))
+	var p := u.node3d(self, "PedestalAccesoPiso3", Vector3(c.x, 0, c.z))
 	u.box(p, Vector3(0, 0.45, 0), Vector3(0.7, 0.9, 0.7), u.stone(Color(0.3, 0.3, 0.36), 0.3), true)
 	u.box(p, Vector3(0, 0.93, 0), Vector3(0.82, 0.07, 0.82), _oro)
-	var f := u.node3d(p, "Fragmento3", Vector3(0, 1.02, 0), -10.0)
-	var pieza := u.box(f, Vector3(0, 0.03, 0), Vector3(0.2, 0.05, 0.13), u.mat(Color(0.5, 0.48, 0.45), 0.8), false, Vector3(0, 0, 8))
-	var glifo := u.mat(Color(0.05, 0.25, 0.22), 0.3, 0.0, Color(0.2, 1.0, 0.85), 3.0)
-	for i in 3:
-		u.box(pieza, Vector3(-0.05 + i * 0.05, 0.027, 0), Vector3(0.012, 0.004, 0.08), glifo)
-	luz_fija(u.omni(f, Vector3(0, 0.25, 0), Color(0.3, 1.0, 0.85), 0.9, 3.5))
-	pickup(f, "Tomar fragmento del amuleto", "fragmento", "Fragmento del amuleto (3/4). Los jeroglíficos arden en tus manos.", 1, Callable(self, "_tomo_fragmento3"), Vector3(0, 0.1, 0))
-	u.text3d(self, "CÁMARA DEL TESORO", Vector3(c.x, 3.3, Z0 + CELDA + 0.05), 0.0, 44, Color(0.9, 0.75, 0.3), 0.005)
+	var tarjeta := u.node3d(p, "TarjetaPiso3", Vector3(0, 1.02, 0), -10.0)
+	var rojo := u.mat(Color(0.7, 0.045, 0.035), 0.32, 0.55, Color(1.0, 0.035, 0.015), 0.65)
+	u.box(tarjeta, Vector3(0, 0.025, 0), Vector3(0.19, 0.018, 0.12), rojo)
+	u.box(tarjeta, Vector3(0.045, 0.036, 0), Vector3(0.045, 0.004, 0.065), _oro)
+	luz_fija(u.omni(tarjeta, Vector3(0, 0.18, 0), Color(1.0, 0.12, 0.06), 0.22, 1.6))
+	pickup(tarjeta, "Tomar tarjeta de acceso al piso 3", "tarjeta_roja", "Tarjeta roja del piso 3. El acceso está en la escalera junto a la galería.", 1, Callable(self, "_tomo_tarjeta_piso3"), Vector3(0, 0.1, 0))
+	u.text3d(self, "CÁMARA DE ACCESO", Vector3(c.x, 3.3, Z0 + CELDA + 0.05), 0.0, 44, Color(0.9, 0.75, 0.3), 0.005)
 
 
-func _tomo_fragmento3() -> void:
-	estado.poner_flag("frag3")
-	Sfx.tocar("golpe")
-	estado.mensaje.emit("Las armaduras de la Armería crujen y se ponen en marcha...")
-	estado.despertar.emit("wake_frag3")
+func _tomo_tarjeta_piso3() -> void:
+	estado.poner_flag("tarjeta_piso3_obtenida")
+	estado.despertar.emit("wake_tarjeta_piso3")
 
 
 func _rincon_de_pilas() -> void:
@@ -166,7 +163,7 @@ func _rincon_de_pilas() -> void:
 	tx += "La Armería es un laberinto a propósito: los caballeros la diseñaron con pasillos de dos metros y medio para que un solo guardián pudiera detener a un ejército.\n\n"
 	tx += "Hay [b]dos rutas[/b] hasta la cámara del tesoro, la del este y la del oeste. Cada una tiene su armadura y su reflector. [b]Con asegurar una ruta basta.[/b]\n\n"
 	tx += "Los paneles de los reflectores están pegados a la pared de cada ruta. Gira el foco sin dejar de vigilar: yo perdí un día entero por darle la espalda a una.\n\n"
-	tx += "[i]Al fondo está el fragmento tres. Cuando lo tomes, las armaduras que sigan libres se pondrán en marcha.[/i]"
+	tx += "[i]Al fondo guardé la tarjeta roja del piso 3. Cuando la tomen, las armaduras que sigan libres se pondrán en marcha.[/i]"
 	nota(d6, "Leer diario", "Diario de la Dra. Torres (6)", tx, "papel", "", d6)
 	# Estante con armas de adorno
 	for k in 3:
@@ -185,7 +182,7 @@ func _armadura(nombre: String, c: Vector3, rot_y: float, color: Color) -> void:
 	e.ruidosa = true
 	e.region = Rect2(X0, Z0, 7.0 * CELDA, 7.0 * CELDA)
 	e.add_to_group("wake_armeria")
-	e.add_to_group("wake_frag3")
+	e.add_to_group("wake_tarjeta_piso3")
 	e.set_meta("enemy_type", "ARMADURA")
 	add_child(e)
 	Modelos.armadura(e, u, color)
